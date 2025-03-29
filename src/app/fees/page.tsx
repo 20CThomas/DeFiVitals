@@ -286,23 +286,23 @@ const generateTopProtocolsData = (protocols: ProtocolFee[]) => {
 };
 
 // Add before the FeesPage component
-const generateTimeData = (days = 90) => {
+const generateTimeData = () => {
   const data = [];
   const today = new Date();
   
-  for (let i = days; i >= 0; i--) {
+  // Generate 30 days of data
+  for (let i = 30; i >= 0; i--) {
     const date = new Date();
     date.setDate(today.getDate() - i);
     
-    // Create random data that's somewhat consistent
-    const baseFees = 7500000 + Math.random() * 2500000;
-    const fluctuation = (Math.sin(i / 10) + 1) * 0.15; // Creates a wave pattern
-    const dailyFees = baseFees * (1 + fluctuation);
+    // Base values that create a more realistic trend
+    const baseFees = 8000000 + Math.random() * 2000000; // Base around $8M with $2M variance
+    const feeRatio = 0.3 + Math.random() * 0.2; // Revenue is 30-50% of fees
     
     data.push({
       date: date.toISOString().split('T')[0],
-      fees: dailyFees,
-      revenue: dailyFees * 0.4,
+      fees: Math.round(baseFees),
+      revenue: Math.round(baseFees * feeRatio),
     });
   }
   

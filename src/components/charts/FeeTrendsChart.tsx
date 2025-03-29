@@ -13,6 +13,10 @@ import {
   ChartData,
   ChartOptions,
   TooltipItem,
+  Scale,
+  ScaleOptionsByType,
+  CoreScaleOptions,
+  Tick
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { useTheme } from 'next-themes';
@@ -43,28 +47,12 @@ export function FeeTrendsChart({ data, timeFrame }: FeeTrendsChartProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // Filter and format data based on timeFrame
-  const filteredData = (() => {
-    switch (timeFrame) {
-      case 'daily':
-        return data.slice(-1); // Last day
-      case 'weekly':
-        return data.slice(-7); // Last 7 days
-      case 'monthly':
-        return data.slice(-30); // Last 30 days
-      case 'cumulative':
-        return data; // All data
-      default:
-        return data;
-    }
-  })();
-
   const chartData: ChartData<'line'> = {
-    labels: filteredData.map(item => item.date),
+    labels: data.map(item => item.date),
     datasets: [
       {
         label: 'Total Fees',
-        data: filteredData.map(item => item.fees),
+        data: data.map(item => item.fees),
         borderColor: '#3b82f6',
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
         fill: true,
@@ -75,7 +63,7 @@ export function FeeTrendsChart({ data, timeFrame }: FeeTrendsChartProps) {
       },
       {
         label: 'Protocol Revenue',
-        data: filteredData.map(item => item.revenue),
+        data: data.map(item => item.revenue),
         borderColor: '#8b5cf6',
         backgroundColor: 'rgba(139, 92, 246, 0.1)',
         fill: true,
@@ -90,86 +78,67 @@ export function FeeTrendsChart({ data, timeFrame }: FeeTrendsChartProps) {
   const options: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-        labels: {
-          color: isDark ? '#e4e4e7' : '#27272a',
-          font: {
-            family: 'Inter, sans-serif',
-            size: 12,
-          },
-        },
-      },
-      tooltip: {
-        mode: 'index' as const,
-        intersect: false,
-        backgroundColor: isDark ? '#18181b' : '#ffffff',
-        titleColor: isDark ? '#e4e4e7' : '#27272a',
-        bodyColor: isDark ? '#a1a1aa' : '#52525b',
-        borderColor: isDark ? '#27272a' : '#e4e4e7',
-        borderWidth: 1,
-        padding: 12,
-        displayColors: true,
-        boxPadding: 4,
-        callbacks: {
-          label: function(tooltipItem: TooltipItem<'line'>) {
-            let label = tooltipItem.dataset.label || '';
-            if (label) {
-              label += ': ';
-            }
-            if (tooltipItem.parsed.y !== null) {
-              label += new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              }).format(tooltipItem.parsed.y);
-            }
-            return label;
-          }
-        },
-      },
+    interaction: {
+      intersect: false,
+      mode: 'index',
     },
     scales: {
       x: {
         grid: {
           display: false,
-          color: isDark ? '#27272a' : '#e4e4e7',
+          color: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
         },
         ticks: {
-          color: isDark ? '#a1a1aa' : '#71717a',
+          color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+          maxRotation: 0,
         },
       },
       y: {
         grid: {
-          color: isDark ? '#27272a' : '#e4e4e7',
+          color: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
         },
         ticks: {
-          color: isDark ? '#a1a1aa' : '#71717a',
-          callback: function(tickValue: number | string) {
-            const value = typeof tickValue === 'string' ? parseFloat(tickValue) : tickValue;
-            return new Intl.NumberFormat('en-US', {
-              style: 'currency',
-              currency: 'USD',
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 0,
-              notation: 'compact',
-              compactDisplay: 'short',
-            }).format(value);
+          color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+          callback: function(this: Scale<CoreScaleOptions>, value: number | string) {
+            const numValue = typeof value === 'number' ? value : parseFloat(value);
+            if (numValue >= 1e6) return `$${(numValue / 1e6).toFixed(1)}M`;
+            if (numValue >= 1e3) return `$${(numValue / 1e3).toFixed(1)}K`;
+            return `$${numValue}`;
           },
         },
       },
     },
-    interaction: {
-      mode: 'nearest' as const,
-      axis: 'x' as const,
-      intersect: false,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+        labels: {
+          color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+          padding: 20,
+          usePointStyle: true,
+          pointStyle: 'circle',
+        },
+      },
+      tooltip: {
+        backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+        titleColor: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+        bodyColor: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+        borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+        borderWidth: 1,
+        padding: 12,
+        callbacks: {
+          label: function(context: any) {
+            const value = context.raw;
+            if (value >= 1e6) return `${context.dataset.label}: $${(value / 1e6).toFixed(2)}M`;
+            if (value >= 1e3) return `${context.dataset.label}: $${(value / 1e3).toFixed(2)}K`;
+            return `${context.dataset.label}: $${value.toFixed(2)}`;
+          },
+        },
+      },
     },
   };
 
   return (
-    <div className="h-[400px] w-full">
+    <div style={{ height: '300px', width: '100%' }}>
       <Line data={chartData} options={options} />
     </div>
   );
