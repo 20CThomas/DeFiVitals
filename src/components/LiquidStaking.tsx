@@ -136,38 +136,37 @@ export function LiquidStaking() {
             />
           </div>
           <div className="flex items-center gap-4">
-            <Select
-              value={sortBy}
-              onValueChange={(value: SortOption) => setSortBy(value)}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Sort by..." />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(SORT_DESCRIPTIONS).map(([key, description]) => (
-                  <SelectItem key={key} value={key} className="pr-8 relative">
-                    <div className="flex items-center justify-between w-full">
-                      <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Info className="absolute right-8 top-1/2 -translate-y-1/2 w-4 h-4 cursor-help" />
-                          </TooltipTrigger>
-                          <TooltipContent
-                            side="right"
-                            align="start"
-                            className="z-[60]"
-                            sideOffset={5}
-                          >
-                            <p>{description}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Select
+                    value={sortBy}
+                    onValueChange={(value: SortOption) => setSortBy(value)}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Sort by..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(SORT_DESCRIPTIONS).map(([key, description]) => (
+                        <SelectItem key={key} value={key}>
+                          <div className="flex items-center gap-2">
+                            {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
+                            <Info className="w-4 h-4" />
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TooltipTrigger>
+                <TooltipContent 
+                  side="right" 
+                  className="max-w-[300px] z-[100]"
+                  sideOffset={5}
+                >
+                  <p>{SORT_DESCRIPTIONS[sortBy]}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <Button
               variant="ghost"
               size="icon"

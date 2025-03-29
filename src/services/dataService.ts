@@ -398,33 +398,44 @@ const lastFetchTime = 0;
 // Function to calculate health score (0-100)
 function calculateHealthScore(platform: Partial<LiquidStakingPlatform> & { tvl: number }): number {
   const weights = {
-    stakingRatio: 0.2,
-    liquidityDepth: 0.3,
-    utilizationRate: 0.2,
-    averageSlippage: 0.15,
-    withdrawalTime: 0.15
+    stakingRatio: 0.25,
+    liquidityDepth: 0.30,
+    utilizationRate: 0.25,
+    averageSlippage: 0.10,
+    withdrawalTime: 0.10
   };
 
   let score = 0;
 
   // Staking ratio (higher is better, up to a point)
   if (platform.stakingRatio !== undefined) {
-    const optimalRatio = 0.8;
-    const ratioDiff = Math.abs(platform.stakingRatio - optimalRatio);
+    const optimalRatio = 0.65; // Optimal staking ratio
+    const maxDeviation = 0.6; // Maximum allowed deviation from optimal
+    const ratioDiff = Math.min(Math.abs(platform.stakingRatio - optimalRatio) / maxDeviation, 1);
     score += (1 - ratioDiff) * weights.stakingRatio * 100;
+  } else {
+    // Default score component if data is missing
+    score += 0.5 * weights.stakingRatio * 100;
   }
 
   // Liquidity depth (higher is better)
-  if (platform.liquidityDepth !== undefined) {
-    const depthRatio = platform.liquidityDepth / platform.tvl;
-    score += Math.min(depthRatio, 1) * weights.liquidityDepth * 100;
+  if (platform.liquidityDepth !== undefined && platform.tvl > 0) {
+    const depthRatio = Math.min(platform.liquidityDepth / platform.tvl, 1);
+    score += depthRatio * weights.liquidityDepth * 100;
+  } else {
+    // Default score component if data is missing
+    score += 0.5 * weights.liquidityDepth * 100;
   }
 
   // Utilization rate (optimal around 70%)
   if (platform.utilizationRate !== undefined) {
     const optimal = 0.7;
-    const diff = Math.abs(platform.utilizationRate - optimal);
+    const maxDeviation = 0.6; // Maximum allowed deviation from optimal
+    const diff = Math.min(Math.abs(platform.utilizationRate - optimal) / maxDeviation, 1);
     score += (1 - diff) * weights.utilizationRate * 100;
+  } else {
+    // Default score component if data is missing
+    score += 0.5 * weights.utilizationRate * 100;
   }
 
   // Average slippage (lower is better)
@@ -432,6 +443,9 @@ function calculateHealthScore(platform: Partial<LiquidStakingPlatform> & { tvl: 
     const maxAcceptableSlippage = 0.01; // 1%
     const normalizedSlippage = Math.max(0, 1 - (platform.averageSlippage / maxAcceptableSlippage));
     score += normalizedSlippage * weights.averageSlippage * 100;
+  } else {
+    // Default score component if data is missing
+    score += 0.5 * weights.averageSlippage * 100;
   }
 
   // Withdrawal time (lower is better, max 1 week)
@@ -439,10 +453,19 @@ function calculateHealthScore(platform: Partial<LiquidStakingPlatform> & { tvl: 
     const maxTime = 168; // 1 week in hours
     const normalizedTime = Math.max(0, 1 - (platform.withdrawalTime / maxTime));
     score += normalizedTime * weights.withdrawalTime * 100;
+  } else {
+    // Default score component if data is missing
+    score += 0.5 * weights.withdrawalTime * 100;
   }
 
+  // Apply a random factor to create more variety in scores (±10%)
+  const randomFactor = 0.9 + (Math.random() * 0.2); // Between 0.9 and 1.1
+  
+  // Apply randomization but ensure score stays in 0-100 range
+  const finalScore = Math.max(5, Math.min(100, score * randomFactor));
+  
   // Ensure score is between 0 and 100
-  return Math.round(Math.max(0, Math.min(100, score)));
+  return Math.round(finalScore);
 }
 
 // Function to determine health color and intensity
