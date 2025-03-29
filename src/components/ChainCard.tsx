@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 interface Chain {
   name: string;
   symbol: string;
@@ -21,10 +23,18 @@ export function ChainCard({ chain }: ChainCardProps) {
           <div className="flex items-center gap-4 mb-6">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-sm"></div>
-              <img
+              <Image
                 alt={`${chain.name} logo`}
                 src={chain.logo}
-                className="relative rounded-full w-12 h-12"
+                width={48}
+                height={48}
+                className="relative rounded-full"
+                priority={false}
+                onError={(e) => {
+                  // TypeScript requires type assertion for e.target
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/placeholder-logo.png';
+                }}
               />
             </div>
             <div>

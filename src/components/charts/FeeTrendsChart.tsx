@@ -1,6 +1,5 @@
 'use client';
 
-import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,7 +10,11 @@ import {
   Tooltip,
   Legend,
   Filler,
+  ChartData,
+  ChartOptions,
+  TooltipItem,
 } from 'chart.js';
+import { Line } from 'react-chartjs-2';
 import { useTheme } from 'next-themes';
 
 ChartJS.register(
@@ -49,7 +52,7 @@ export function FeeTrendsChart({ data, timeFrame }: FeeTrendsChartProps) {
   }
   // For '90D' we use all data
 
-  const chartData = {
+  const chartData: ChartData<'line'> = {
     labels: filteredData.map(item => item.date),
     datasets: [
       {
@@ -77,7 +80,7 @@ export function FeeTrendsChart({ data, timeFrame }: FeeTrendsChartProps) {
     ],
   };
 
-  const options = {
+  const options: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -103,18 +106,18 @@ export function FeeTrendsChart({ data, timeFrame }: FeeTrendsChartProps) {
         displayColors: true,
         boxPadding: 4,
         callbacks: {
-          label: function(context: any) {
-            let label = context.dataset.label || '';
+          label: function(tooltipItem: TooltipItem<'line'>) {
+            let label = tooltipItem.dataset.label || '';
             if (label) {
               label += ': ';
             }
-            if (context.parsed.y !== null) {
+            if (tooltipItem.parsed.y !== null) {
               label += new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: 'USD',
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,
-              }).format(context.parsed.y);
+              }).format(tooltipItem.parsed.y);
             }
             return label;
           }
@@ -125,7 +128,7 @@ export function FeeTrendsChart({ data, timeFrame }: FeeTrendsChartProps) {
       x: {
         grid: {
           display: false,
-          drawBorder: false,
+          color: isDark ? '#27272a' : '#e4e4e7',
         },
         ticks: {
           color: isDark ? '#a1a1aa' : '#71717a',
@@ -134,11 +137,11 @@ export function FeeTrendsChart({ data, timeFrame }: FeeTrendsChartProps) {
       y: {
         grid: {
           color: isDark ? '#27272a' : '#e4e4e7',
-          drawBorder: false,
         },
         ticks: {
           color: isDark ? '#a1a1aa' : '#71717a',
-          callback: function(value: any) {
+          callback: function(tickValue: number | string) {
+            const value = typeof tickValue === 'string' ? parseFloat(tickValue) : tickValue;
             return new Intl.NumberFormat('en-US', {
               style: 'currency',
               currency: 'USD',
