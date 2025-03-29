@@ -19,6 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from 'next/image';
 
 type SortOption = 'score' | 'tvl' | 'change24h' | 'stakingRatio' | 'liquidityDepth' | 'utilizationRate';
 type SortDirection = 'asc' | 'desc';
@@ -198,10 +199,12 @@ export function LiquidStaking() {
               <Card className="p-6 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-4">
-                    <img
+                    <Image
                       src={platform.logo}
                       alt={`${platform.name} logo`}
-                      className="w-12 h-12 rounded-full"
+                      width={48}
+                      height={48}
+                      className="rounded-full"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = '/placeholder-logo.png';
                       }}

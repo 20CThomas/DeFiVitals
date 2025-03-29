@@ -67,7 +67,9 @@ const DEFILLAMA_API_BASE = 'https://api.llama.fi';
 const DIA_API_BASE = 'https://api.diadata.org/v1';
 
 // Cache for protocol data
+// eslint-disable-next-line prefer-const
 let protocolDataCache: DefiLlamaProtocol[] | null = null;
+// eslint-disable-next-line prefer-const
 let lastProtocolFetch: number = 0;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 
