@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FeeDistributionChart } from './charts/FeeDistributionChart';
 import { FeeTrendsChart } from './charts/FeeTrendsChart';
 import { TopProtocolsChart } from './charts/TopProtocolsChart';
 
 export function FeesOverview() {
-  const [timeframe, setTimeframe] = useState('7D');
+  const [timeframe, setTimeframe] = useState('daily');
 
   // This would be replaced with real data from your API
   const mockData = {
@@ -18,15 +18,11 @@ export function FeesOverview() {
       { name: 'Yield', value: 300000, color: '#EC4899' },
       { name: 'RWA', value: 200000, color: '#F59E0B' }
     ],
-    trends: Array.from({ length: 90 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (89 - i));
-      return {
-        date: date.toLocaleDateString(),
-        totalFees: Math.random() * 1000000 + 500000,
-        totalRevenue: Math.random() * 800000 + 300000
-      };
-    }),
+    trends: Array.from({ length: 30 }, (_, i) => ({
+      date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
+      fees: Math.random() * 1000000 + 500000,
+      revenue: Math.random() * 800000 + 300000
+    })),
     topProtocols: [
       { name: 'Uniswap', fees: 1000000, revenue: 800000 },
       { name: 'Aave', fees: 800000, revenue: 600000 },
@@ -39,16 +35,14 @@ export function FeesOverview() {
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
-        <Select value={timeframe} onValueChange={setTimeframe}>
-          <SelectTrigger className="w-[120px]">
-            <SelectValue placeholder="Timeframe" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="7D">7D</SelectItem>
-            <SelectItem value="30D">30D</SelectItem>
-            <SelectItem value="90D">90D</SelectItem>
-          </SelectContent>
-        </Select>
+        <Tabs defaultValue="daily" value={timeframe} onValueChange={setTimeframe}>
+          <TabsList className="bg-muted w-full">
+            <TabsTrigger value="daily" className="flex-1">Daily</TabsTrigger>
+            <TabsTrigger value="weekly" className="flex-1">Weekly</TabsTrigger>
+            <TabsTrigger value="monthly" className="flex-1">Monthly</TabsTrigger>
+            <TabsTrigger value="cumulative" className="flex-1">Total</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">

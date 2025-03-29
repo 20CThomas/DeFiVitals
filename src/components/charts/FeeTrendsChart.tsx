@@ -29,39 +29,28 @@ ChartJS.register(
 );
 
 interface TrendData {
-  date: string | Date;
-  totalFees: number;
-  totalRevenue: number;
+  date: string;
+  fees: number;
+  revenue: number;
 }
 
 interface FeeTrendsChartProps {
   data: TrendData[];
-  timeFrame: string;
+  timeFrame: 'daily' | 'weekly' | 'monthly' | 'cumulative';
 }
 
 export function FeeTrendsChart({ data, timeFrame }: FeeTrendsChartProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // Filter and format data
-  let filteredData = [...data].map(item => ({
-    ...item,
-    date: typeof item.date === 'string' ? item.date : item.date.toLocaleDateString()
-  }));
-
-  if (timeFrame === '7D') {
-    filteredData = filteredData.slice(-7);
-  } else if (timeFrame === '30D') {
-    filteredData = filteredData.slice(-30);
-  }
-  // For '90D' we use all data
-
+  // Filter and format data based on timeFrame
+  let filteredData = [...data];
   const chartData: ChartData<'line'> = {
     labels: filteredData.map(item => item.date),
     datasets: [
       {
         label: 'Total Fees',
-        data: filteredData.map(item => item.totalFees),
+        data: filteredData.map(item => item.fees),
         borderColor: '#3b82f6',
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
         fill: true,
@@ -71,8 +60,8 @@ export function FeeTrendsChart({ data, timeFrame }: FeeTrendsChartProps) {
         pointHoverRadius: 4,
       },
       {
-        label: 'Total Revenue',
-        data: filteredData.map(item => item.totalRevenue),
+        label: 'Protocol Revenue',
+        data: filteredData.map(item => item.revenue),
         borderColor: '#8b5cf6',
         backgroundColor: 'rgba(139, 92, 246, 0.1)',
         fill: true,
