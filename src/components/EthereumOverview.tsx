@@ -255,29 +255,6 @@ export function ChainOverview() {
               BTC
             </Button>
           </div>
-          <div className="flex space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {/* TODO: Implement overview functionality */}}
-            >
-              Overview
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {/* TODO: Implement chains functionality */}}
-            >
-              Chains
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {/* TODO: Implement fees functionality */}}
-            >
-              Fees
-            </Button>
-          </div>
         </div>
         <div className="flex items-center space-x-4">
           <Select value={selectedCurrency} onValueChange={(value: Currency) => setSelectedCurrency(value)}>
@@ -292,7 +269,6 @@ export function ChainOverview() {
               <SelectItem value="CNY">CNY (¥)</SelectItem>
             </SelectContent>
           </Select>
-          <ThemeToggle />
         </div>
       </div>
 
