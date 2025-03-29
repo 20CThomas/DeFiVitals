@@ -415,7 +415,9 @@ export function ChainOverview() {
             <CardTitle className="text-sm font-medium">{chain} Price</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${formatNumber(data.tokenPrice)}</div>
+            <div className="text-2xl font-bold">
+              {formatNumber(data.tokenPrice, selectedCurrency)}
+            </div>
             <p className="text-xs text-muted-foreground">
               {formatPercentage(data.priceChange24h)} from yesterday
             </p>
@@ -444,9 +446,9 @@ export function ChainOverview() {
                 <div className="flex justify-between items-center">
                   <div>
                     <h3 className="font-medium">{protocol.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      TVL: ${formatNumber(protocol.tvl)}
-                    </p>
+                    <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                      TVL: {formatNumber(protocol.tvl, selectedCurrency)}
+                    </div>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium">
