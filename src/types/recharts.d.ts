@@ -4,7 +4,7 @@ declare module 'recharts' {
   export interface CommonProps {
     width?: number | string;
     height?: number | string;
-    data?: any[];
+    data?: Record<string, unknown>[];
     margin?: {
       top?: number;
       right?: number;
@@ -23,7 +23,7 @@ declare module 'recharts' {
     tick?: {
       fill?: string;
     };
-    tickFormatter?: (value: any) => string;
+    tickFormatter?: (value: number | string) => string;
     interval?: number;
     angle?: number;
     textAnchor?: string;
@@ -31,11 +31,11 @@ declare module 'recharts' {
   }
 
   export interface TooltipProps {
-    formatter?: (value: any, name?: string) => [string, string];
+    formatter?: (value: number | string, name?: string) => [string, string];
   }
 
   export interface PieProps {
-    data?: any[];
+    data?: Record<string, unknown>[];
     cx?: string | number;
     cy?: string | number;
     labelLine?: boolean;
@@ -70,12 +70,12 @@ declare module 'recharts' {
   export const Pie: ComponentType<PieProps>;
   export const Cell: ComponentType<CellProps>;
   export const Tooltip: ComponentType<TooltipProps>;
-  export const Legend: ComponentType<any>;
+  export const Legend: ComponentType<Record<string, unknown>>;
   export const LineChart: ComponentType<ChartProps>;
   export const Line: ComponentType<LineProps>;
   export const XAxis: ComponentType<AxisProps>;
   export const YAxis: ComponentType<AxisProps>;
-  export const CartesianGrid: ComponentType<any>;
+  export const CartesianGrid: ComponentType<Record<string, unknown>>;
   export const BarChart: ComponentType<ChartProps>;
   export const Bar: ComponentType<BarProps>;
 } 
