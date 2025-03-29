@@ -162,7 +162,7 @@ function ChainCard({ chain }: { chain: Chain }) {
   return (
     <div className="relative group">
       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg transform group-hover:scale-105 transition-transform duration-300" />
-      <Card className="relative overflow-hidden backdrop-blur-sm bg-zinc-900/50 border-zinc-800/50 group-hover:border-zinc-700/50 transition-colors">
+      <Card className="relative overflow-hidden backdrop-blur-sm bg-background/50 border-border/50 group-hover:border-border/80 transition-colors">
         <CardContent className="p-6">
           <div className="flex items-center gap-4 mb-6">
             <div className="relative">
@@ -179,24 +179,24 @@ function ChainCard({ chain }: { chain: Chain }) {
               />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-white">{chain.name}</h2>
-              <p className="text-sm text-zinc-400">{chain.tokenSymbol}</p>
+              <h2 className="text-xl font-semibold text-foreground">{chain.name}</h2>
+              <p className="text-sm text-muted-foreground">{chain.tokenSymbol}</p>
             </div>
             <div className="ml-auto text-right">
               <p className={`text-lg font-semibold ${chain.change_24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                 {chain.change_24h >= 0 ? '+' : ''}{chain.change_24h.toFixed(2)}%
               </p>
-              <p className="text-sm text-zinc-400">24h Change</p>
+              <p className="text-sm text-muted-foreground">24h Change</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <p className="text-sm font-medium text-zinc-400 mb-1">TVL</p>
-              <p className="text-2xl font-bold text-white">{formatValue(chain.tvl)}</p>
+              <p className="text-sm font-medium text-muted-foreground mb-1">TVL</p>
+              <p className="text-2xl font-bold text-foreground">{formatValue(chain.tvl)}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-zinc-400 mb-1">7d Change</p>
+              <p className="text-sm font-medium text-muted-foreground mb-1">7d Change</p>
               <p className={`text-2xl font-bold ${chain.change_7d >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                 {chain.change_7d >= 0 ? '+' : ''}{chain.change_7d.toFixed(2)}%
               </p>
@@ -205,10 +205,10 @@ function ChainCard({ chain }: { chain: Chain }) {
 
           <div className="mt-6">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-medium text-zinc-400">Active Protocols</p>
-              <p className="text-lg font-semibold text-white">{chain.protocols}</p>
+              <p className="text-sm font-medium text-muted-foreground">Active Protocols</p>
+              <p className="text-lg font-semibold text-foreground">{chain.protocols}</p>
             </div>
-            <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+            <div className="h-2 bg-muted rounded-full overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
                 style={{ width: `${Math.min(100, (chain.protocols / 400) * 100)}%` }}
@@ -294,123 +294,175 @@ export default function ChainsPage() {
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="min-h-screen bg-background flex">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900 via-zinc-900 to-zinc-950">
+      <div className="flex-1 flex flex-col">
         <Header />
-        <div className="container mx-auto px-4 py-8 space-y-8">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
-                Blockchain Networks
-              </h1>
-              <p className="text-zinc-400 mt-2">
-                Explore and analyze different blockchain networks and their metrics
-              </p>
-            </div>
-            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
-              <div className="relative w-full md:w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Search chains..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-zinc-900/50 border border-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-zinc-500"
-                />
+        <main className="flex-1 overflow-y-auto p-4">
+          <div className="container mx-auto px-4 py-8 space-y-8">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
+                  Blockchain Networks
+                </h1>
+                <p className="text-muted-foreground mt-2">
+                  Explore and analyze different blockchain networks and their metrics
+                </p>
               </div>
-              <div className="flex items-center gap-2">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Select
-                        value={sortBy}
-                        onValueChange={(value: SortOption) => setSortBy(value)}
-                      >
-                        <SelectTrigger className="w-[180px] bg-zinc-900/50 border-zinc-800">
-                          <SelectValue placeholder="Sort by..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(SORT_DESCRIPTIONS).map(([key, description]) => (
-                            <SelectItem key={key} value={key}>
+              <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                <div className="relative w-full md:w-64">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <input
+                    type="text"
+                    placeholder="Search chains..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-muted-foreground"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Select
+                          value={sortBy}
+                          onValueChange={(value: SortOption) => setSortBy(value)}
+                        >
+                          <SelectTrigger className="w-[180px] bg-background/50 border-border">
+                            <SelectValue placeholder="Sort by">
                               <div className="flex items-center gap-2">
-                                {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
+                                {sortBy.charAt(0).toUpperCase() + sortBy.slice(1).replace('_', ' ')}
                                 <Info className="w-4 h-4" />
                               </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" className="max-w-[300px] z-[100]">
-                      <p>{SORT_DESCRIPTIONS[sortBy]}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc')}
-                  className="relative group bg-zinc-900/50 border-zinc-800"
-                >
-                  {sortDirection === 'desc' ? <SortDesc className="w-4 h-4" /> : <SortAsc className="w-4 h-4" />}
-                </Button>
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(SORT_DESCRIPTIONS).map(([key, description]) => (
+                              <SelectItem key={key} value={key}>
+                                <div className="flex items-center gap-2">
+                                  {key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ')}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" align="start" sideOffset={10} className="max-w-[250px]">
+                        <p>{SORT_DESCRIPTIONS[sortBy]}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc')}
+                          className="bg-background/50 border-border"
+                        >
+                          {sortDirection === 'desc' ? <SortDesc className="w-4 h-4" /> : <SortAsc className="w-4 h-4" />}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" align="center">
+                        {sortDirection === 'desc' ? 'High to Low' : 'Low to High'}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
               </div>
             </div>
-          </div>
 
-          <AnimatePresence>
-            <motion.div 
-              className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-              layout
-            >
-              {visibleChains.map((chain, index) => (
-                <motion.div
-                  key={chain.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <AnimatePresence>
+                {isLoading
+                  ? Array.from({ length: 9 }).map((_, index) => (
+                      <motion.div
+                        key={`skeleton-${index}`}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <div className="relative group">
+                          <Card className="relative overflow-hidden bg-background/50 border-border/50">
+                            <CardContent className="p-6 space-y-6">
+                              <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-full bg-muted animate-pulse" />
+                                <div className="space-y-2 flex-1">
+                                  <div className="h-5 w-24 bg-muted rounded animate-pulse" />
+                                  <div className="h-4 w-12 bg-muted rounded animate-pulse" />
+                                </div>
+                                <div className="space-y-2">
+                                  <div className="h-5 w-16 bg-muted rounded animate-pulse" />
+                                  <div className="h-4 w-20 bg-muted rounded animate-pulse" />
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                  <div className="h-4 w-8 bg-muted rounded animate-pulse" />
+                                  <div className="h-8 w-20 bg-muted rounded animate-pulse" />
+                                </div>
+                                <div className="space-y-2">
+                                  <div className="h-4 w-16 bg-muted rounded animate-pulse" />
+                                  <div className="h-8 w-16 bg-muted rounded animate-pulse" />
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <div className="flex justify-between">
+                                  <div className="h-4 w-24 bg-muted rounded animate-pulse" />
+                                  <div className="h-4 w-8 bg-muted rounded animate-pulse" />
+                                </div>
+                                <div className="h-2 bg-muted rounded-full" />
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </motion.div>
+                    ))
+                  : filteredChains.slice(0, visibleCount).map((chain) => (
+                      <motion.div
+                        key={chain.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <ChainCard chain={chain} />
+                      </motion.div>
+                    ))}
+              </AnimatePresence>
+            </div>
+
+            {!isLoading && visibleCount < filteredChains.length && (
+              <div className="flex justify-center mt-8 gap-4">
+                <Select
+                  value={loadMoreAmount}
+                  onValueChange={setLoadMoreAmount}
                 >
-                  <ChainCard chain={chain} />
-                </motion.div>
-              ))}
-            </motion.div>
-          </AnimatePresence>
+                  <SelectTrigger className="w-[120px] bg-background/50 border-border">
+                    <SelectValue>{loadMoreAmount} More</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="3">3 More</SelectItem>
+                    <SelectItem value="6">6 More</SelectItem>
+                    <SelectItem value="9">9 More</SelectItem>
+                  </SelectContent>
+                </Select>
 
-          {hasMore && (
-            <div className="flex justify-center mt-8 gap-4">
-              <Select
-                value={loadMoreAmount}
-                onValueChange={setLoadMoreAmount}
-              >
-                <SelectTrigger className="w-[120px] bg-zinc-900/50 border-zinc-800">
-                  <SelectValue placeholder="Load..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="3">3 More</SelectItem>
-                  <SelectItem value="6">6 More</SelectItem>
-                  <SelectItem value="9">9 More</SelectItem>
-                  <SelectItem value="all">Show All</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                variant="outline"
-                onClick={handleLoadMore}
-                className="px-8 bg-zinc-900/50 border-zinc-800"
-              >
-                Load More
-              </Button>
-            </div>
-          )}
-
-          {filteredChains.length === 0 && (
-            <div className="text-center text-zinc-400 py-8">
-              No chains found matching your search.
-            </div>
-          )}
-        </div>
-      </main>
+                <Button 
+                  onClick={handleLoadMore} 
+                  variant="outline" 
+                  className="bg-background/50 border-border"
+                >
+                  Load More
+                </Button>
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
     </div>
   );
 } 

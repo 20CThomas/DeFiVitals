@@ -105,7 +105,7 @@ export function Footer({ className = '' }: FooterProps) {
         </div>
 
         <div className="mt-8 pt-4 border-t border-zinc-800 text-center text-zinc-400 text-sm">
-          <p>© {new Date().getFullYear()} DeFiVitals. All rights reserved. This is a clone for demonstration purposes only.</p>
+          <p>© {new Date().getFullYear()} DeFiVitals. All rights reserved. </p>
         </div>
       </div>
     </footer>

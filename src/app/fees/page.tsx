@@ -294,6 +294,7 @@ export default function FeesPage() {
   const [selectedChain, setSelectedChain] = useState('All Chains');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
   const [isLoading, setIsLoading] = useState(true);
+  const [timeFrameFilter, setTimeFrameFilter] = useState('7D');
 
   useEffect(() => {
     // Simulate loading data
@@ -391,6 +392,29 @@ export default function FeesPage() {
   // Calculate totals for the current filtered set
   const totalFees = filteredProtocols.reduce((sum, protocol) => sum + getFeeValue(protocol, timeFrame), 0);
   const totalRevenue = filteredProtocols.reduce((sum, protocol) => sum + getRevenueValue(protocol, timeFrame), 0);
+
+  const generateTimeData = (days = 90) => {
+    const data = [];
+    const today = new Date();
+    
+    for (let i = days; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(today.getDate() - i);
+      
+      // Create random data that's somewhat consistent
+      const baseFees = 7500000 + Math.random() * 2500000;
+      const fluctuation = (Math.sin(i / 10) + 1) * 0.15; // Creates a wave pattern
+      const dailyFees = baseFees * (1 + fluctuation);
+      
+      data.push({
+        date: date.toISOString().split('T')[0],
+        totalFees: dailyFees,
+        totalRevenue: dailyFees * 0.4,
+      });
+    }
+    
+    return data;
+  };
 
   if (isLoading) {
     return (
@@ -672,7 +696,55 @@ export default function FeesPage() {
                     <CardTitle className="text-lg font-medium">Fee Trends Over Time</CardTitle>
                   </CardHeader>
                   <CardContent className="py-2">
-                    <FeeTrendsChart data={generateTrendData(filteredProtocols)} />
+                    <Tabs defaultValue="trends" className="w-full">
+                      <div className="flex justify-between items-center mb-4">
+                        <TabsList className="bg-muted">
+                          <TabsTrigger value="trends">Fee Trends</TabsTrigger>
+                          <TabsTrigger value="distribution">Fee Distribution</TabsTrigger>
+                          <TabsTrigger value="top">Top Protocols</TabsTrigger>
+                        </TabsList>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => setTimeFrameFilter('7D')}
+                            variant={timeFrameFilter === '7D' ? 'default' : 'outline'}
+                            size="sm"
+                            className="h-8"
+                          >
+                            7D
+                          </Button>
+                          <Button
+                            onClick={() => setTimeFrameFilter('30D')}
+                            variant={timeFrameFilter === '30D' ? 'default' : 'outline'}
+                            size="sm"
+                            className="h-8"
+                          >
+                            30D
+                          </Button>
+                          <Button
+                            onClick={() => setTimeFrameFilter('90D')}
+                            variant={timeFrameFilter === '90D' ? 'default' : 'outline'}
+                            size="sm"
+                            className="h-8"
+                          >
+                            90D
+                          </Button>
+                        </div>
+                      </div>
+                      <TabsContent value="trends" className="mt-0">
+                        <Card className="border-border bg-background/50">
+                          <CardHeader>
+                            <CardTitle>Protocol Fee Trends</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <FeeTrendsChart 
+                              data={generateTimeData(90)} 
+                              timeFrame={timeFrameFilter}
+                            />
+                          </CardContent>
+                        </Card>
+                      </TabsContent>
+                      {/* Other tabs... */}
+                    </Tabs>
                   </CardContent>
                 </Card>
               </div>
