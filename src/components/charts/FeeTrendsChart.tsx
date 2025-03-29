@@ -21,7 +21,7 @@ export function FeeTrendsChart({ data }: FeeTrendsProps) {
         <YAxis 
           stroke="#9CA3AF"
           tick={{ fill: '#9CA3AF' }}
-          tickFormatter={(value) => `$${(value / 1e6).toFixed(0)}M`}
+          tickFormatter={(value: number) => `$${(value / 1e6).toFixed(0)}M`}
         />
         <Tooltip
           formatter={(value: number) => [`$${(value / 1e6).toFixed(2)}M`, 'Amount']}
