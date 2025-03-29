@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sidebar } from '@/components/Sidebar';
+import Image from 'next/image';
 
 type SortOption = 'tvl' | 'change_24h' | 'marketCap' | 'name' | 'category' | 'mcap_tvl';
 type SortDirection = 'asc' | 'desc';
@@ -155,28 +156,22 @@ export default function ProtocolsPage() {
                           {Object.entries(SORT_DESCRIPTIONS).map(([key, description]) => (
                             <SelectItem key={key} value={key} className="pr-8">
                               <div className="flex items-center justify-between w-full">
-                                <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                                <span>{key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ')}</span>
+                                <Info className="ml-2 w-4 h-4 cursor-help" />
                               </div>
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Info className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 cursor-help" />
-                                  </TooltipTrigger>
-                                  <TooltipContent
-                                    side="right"
-                                    align="start"
-                                    className="z-[60]"
-                                    sideOffset={5}
-                                  >
-                                    <p>{description}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </TooltipTrigger>
+                    <TooltipContent 
+                      side="right" 
+                      align="start" 
+                      className="z-[100]"
+                      sideOffset={5}
+                    >
+                      <p>{SORT_DESCRIPTIONS[sortBy]}</p>
+                    </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
                 <Button
@@ -209,10 +204,12 @@ export default function ProtocolsPage() {
                 >
                   <Card className="p-6 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
                     <div className="flex items-center gap-4 mb-4">
-                      <img
+                      <Image
                         src={protocol.logo}
                         alt={`${protocol.name} logo`}
-                        className="w-12 h-12 rounded-full"
+                        width={48}
+                        height={48}
+                        className="rounded-full"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = '/placeholder-logo.png';
                         }}

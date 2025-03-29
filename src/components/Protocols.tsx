@@ -19,6 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from 'next/image';
 
 type SortOption = 'tvl' | 'change_24h' | 'marketCap' | 'name' | 'category' | 'mcap_tvl';
 type SortDirection = 'asc' | 'desc';
@@ -135,33 +136,34 @@ export function Protocols() {
             />
           </div>
           <div className="flex items-center gap-4 mb-4">
-            <Select
-              value={sortBy}
-              onValueChange={(value: SortOption) => setSortBy(value)}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Sort by..." />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(SORT_DESCRIPTIONS).map(([key, description]) => (
-                  <SelectItem key={key} value={key}>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Select
+                    value={sortBy}
+                    onValueChange={(value: SortOption) => setSortBy(value)}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Sort by..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(SORT_DESCRIPTIONS).map(([key, description]) => (
+                        <SelectItem key={key} value={key}>
                           <div className="flex items-center gap-2">
                             {key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ')}
                             <Info className="w-4 h-4" />
                           </div>
-                        </TooltipTrigger>
-                        <TooltipContent side="right" className="max-w-[300px]">
-                          <p>{description}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="max-w-[300px] z-[100]">
+                  <p>{SORT_DESCRIPTIONS[sortBy]}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
             <Button
               variant="ghost"
               size="icon"
@@ -192,10 +194,12 @@ export function Protocols() {
             >
               <Card className="p-6 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
                 <div className="flex items-center gap-4 mb-4">
-                  <img
+                  <Image
                     src={protocol.logo}
                     alt={`${protocol.name} logo`}
-                    className="w-12 h-12 rounded-full"
+                    width={48}
+                    height={48}
+                    className="rounded-full"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = '/placeholder-logo.png';
                     }}

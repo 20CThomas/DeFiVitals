@@ -8,6 +8,8 @@ const nextConfig = {
       "images.unsplash.com",
       "ext.same-assets.com",
       "ugc.same-assets.com",
+      "defillama.com",
+      "api.llama.fi"
     ],
     remotePatterns: [
       {
@@ -30,6 +32,16 @@ const nextConfig = {
         hostname: "ugc.same-assets.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "defillama.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "api.llama.fi",
+        pathname: "/**",
+      }
     ],
   },
 };

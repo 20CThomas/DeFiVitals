@@ -67,9 +67,7 @@ const DEFILLAMA_API_BASE = 'https://api.llama.fi';
 const DIA_API_BASE = 'https://api.diadata.org/v1';
 
 // Cache for protocol data
-// eslint-disable-next-line prefer-const
 let protocolDataCache: DefiLlamaProtocol[] | null = null;
-// eslint-disable-next-line prefer-const
 let lastProtocolFetch: number = 0;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 
@@ -394,8 +392,8 @@ export interface LiquidStakingPlatform {
 }
 
 // Add cache variables
-let platformsCache: LiquidStakingPlatform[] | null = null;
-let lastFetchTime = 0;
+const platformsCache: LiquidStakingPlatform[] | null = null;
+const lastFetchTime = 0;
 
 // Function to calculate health score (0-100)
 function calculateHealthScore(platform: Partial<LiquidStakingPlatform> & { tvl: number }): number {
