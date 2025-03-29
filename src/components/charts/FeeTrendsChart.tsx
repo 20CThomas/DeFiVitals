@@ -91,12 +91,15 @@ export function FeeTrendsChart({ data, timeFrame }: FeeTrendsChartProps) {
         ticks: {
           color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
           maxRotation: 0,
+          autoSkip: true,
+          maxTicksLimit: timeFrame === 'daily' ? 1 : timeFrame === 'weekly' ? 7 : 10,
         },
       },
       y: {
         grid: {
           color: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
         },
+        beginAtZero: true,
         ticks: {
           color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
           callback: function(this: Scale<CoreScaleOptions>, value: number | string) {

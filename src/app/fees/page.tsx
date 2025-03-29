@@ -286,12 +286,30 @@ const generateTopProtocolsData = (protocols: ProtocolFee[]) => {
 };
 
 // Add before the FeesPage component
-const generateTimeData = () => {
+const generateTimeData = (timeFrame: TimeFrameType) => {
   const data = [];
   const today = new Date();
   
-  // Generate 30 days of data
-  for (let i = 30; i >= 0; i--) {
+  // Determine number of days based on timeFrame
+  let days;
+  switch (timeFrame) {
+    case 'daily':
+      days = 1;
+      break;
+    case 'weekly':
+      days = 7;
+      break;
+    case 'monthly':
+      days = 30;
+      break;
+    case 'cumulative':
+      days = 90; // Show 3 months for cumulative view
+      break;
+    default:
+      days = 30;
+  }
+
+  for (let i = days - 1; i >= 0; i--) {
     const date = new Date();
     date.setDate(today.getDate() - i);
     
@@ -300,7 +318,10 @@ const generateTimeData = () => {
     const feeRatio = 0.3 + Math.random() * 0.2; // Revenue is 30-50% of fees
     
     data.push({
-      date: date.toISOString().split('T')[0],
+      date: date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric'
+      }),
       fees: Math.round(baseFees),
       revenue: Math.round(baseFees * feeRatio),
     });
@@ -696,7 +717,7 @@ export default function FeesPage() {
                     <CardTitle className="text-lg font-medium">Fee Trends Over Time</CardTitle>
                   </CardHeader>
                   <CardContent className="py-2">
-                    <FeeTrendsChart data={generateTimeData()} timeFrame="daily" />
+                    <FeeTrendsChart data={generateTimeData(timeFrame)} timeFrame={timeFrame} />
                   </CardContent>
                 </Card>
               </div>
