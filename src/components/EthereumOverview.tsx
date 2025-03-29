@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { fetchAggregatedData, fetchHistoricalData, AggregatedData, ChartData } from '../services/dataService';
-import { formatNumber, formatPercentage } from '../utils/formatters';
+import { formatNumber, formatPercentage, formatCurrency, Currency } from '../utils/formatters';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -37,6 +37,14 @@ import {
   CoreScaleOptions,
   Tick
 } from 'chart.js';
+import { ThemeToggle } from './ThemeToggle';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 ChartJS.register(
   CategoryScale,
@@ -58,6 +66,7 @@ export function ChainOverview() {
   const [timeframe, setTimeframe] = useState<number>(90);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency>('USD');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -246,6 +255,44 @@ export function ChainOverview() {
               BTC
             </Button>
           </div>
+          <div className="flex space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {/* TODO: Implement overview functionality */}}
+            >
+              Overview
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {/* TODO: Implement chains functionality */}}
+            >
+              Chains
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {/* TODO: Implement fees functionality */}}
+            >
+              Fees
+            </Button>
+          </div>
+        </div>
+        <div className="flex items-center space-x-4">
+          <Select value={selectedCurrency} onValueChange={(value: Currency) => setSelectedCurrency(value)}>
+            <SelectTrigger className="w-[100px]">
+              <SelectValue placeholder="Currency" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="USD">USD ($)</SelectItem>
+              <SelectItem value="EUR">EUR (€)</SelectItem>
+              <SelectItem value="GBP">GBP (£)</SelectItem>
+              <SelectItem value="JPY">JPY (¥)</SelectItem>
+              <SelectItem value="CNY">CNY (¥)</SelectItem>
+            </SelectContent>
+          </Select>
+          <ThemeToggle />
         </div>
       </div>
 
@@ -336,13 +383,15 @@ export function ChainOverview() {
         </CardHeader>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total TVL</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Value Locked</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(data.totalTvl)}</div>
+            <div className="text-2xl font-bold">
+              {formatNumber(data.totalTvl, selectedCurrency)}
+            </div>
             <p className="text-xs text-muted-foreground">
               {formatPercentage(data.averageChange1d)} from yesterday
             </p>
