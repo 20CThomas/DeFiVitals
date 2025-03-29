@@ -11,6 +11,7 @@ declare module 'recharts' {
       bottom?: number;
       left?: number;
     };
+    children?: ReactNode;
   }
 
   export interface ChartProps extends CommonProps {
@@ -55,7 +56,7 @@ declare module 'recharts' {
     dataKey?: string;
     stroke?: string;
     strokeWidth?: number;
-    dot?: boolean;
+    dot?: boolean | object;
     name?: string;
   }
 
@@ -65,7 +66,14 @@ declare module 'recharts' {
     name?: string;
   }
 
-  export const ResponsiveContainer: ComponentType<CommonProps>;
+  export interface ResponsiveContainerProps extends Omit<CommonProps, 'data'> {
+    aspect?: number;
+    minWidth?: number;
+    minHeight?: number;
+    debounce?: number;
+  }
+
+  export const ResponsiveContainer: ComponentType<ResponsiveContainerProps>;
   export const PieChart: ComponentType<ChartProps>;
   export const Pie: ComponentType<PieProps>;
   export const Cell: ComponentType<CellProps>;
