@@ -5,8 +5,10 @@ import { FeeDistributionChart } from './charts/FeeDistributionChart';
 import { FeeTrendsChart } from './charts/FeeTrendsChart';
 import { TopProtocolsChart } from './charts/TopProtocolsChart';
 
+type TimeFrameType = 'daily' | 'weekly' | 'monthly' | 'cumulative';
+
 export function FeesOverview() {
-  const [timeframe, setTimeframe] = useState('daily');
+  const [timeframe, setTimeframe] = useState<TimeFrameType>('daily');
 
   // This would be replaced with real data from your API
   const mockData = {
@@ -18,11 +20,15 @@ export function FeesOverview() {
       { name: 'Yield', value: 300000, color: '#EC4899' },
       { name: 'RWA', value: 200000, color: '#F59E0B' }
     ],
-    trends: Array.from({ length: 30 }, (_, i) => ({
-      date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
-      fees: Math.random() * 1000000 + 500000,
-      revenue: Math.random() * 800000 + 300000
-    })),
+    trends: Array.from({ length: 30 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (29 - i));
+      return {
+        date: date.toISOString().split('T')[0],
+        fees: Math.random() * 1000000 + 500000,
+        revenue: Math.random() * 800000 + 300000
+      };
+    }),
     topProtocols: [
       { name: 'Uniswap', fees: 1000000, revenue: 800000 },
       { name: 'Aave', fees: 800000, revenue: 600000 },
@@ -35,7 +41,11 @@ export function FeesOverview() {
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
-        <Tabs defaultValue="daily" value={timeframe} onValueChange={setTimeframe}>
+        <Tabs 
+          defaultValue="daily" 
+          value={timeframe} 
+          onValueChange={(value) => setTimeframe(value as TimeFrameType)}
+        >
           <TabsList className="bg-muted w-full">
             <TabsTrigger value="daily" className="flex-1">Daily</TabsTrigger>
             <TabsTrigger value="weekly" className="flex-1">Weekly</TabsTrigger>
