@@ -126,8 +126,8 @@ export function FeeTrendsChart({ data, timeFrame }: FeeTrendsChartProps) {
         borderWidth: 1,
         padding: 12,
         callbacks: {
-          label: function(context: any) {
-            const value = context.raw;
+          label: function(context: TooltipItem<'line'>) {
+            const value = context.raw as number;
             if (value >= 1e6) return `${context.dataset.label}: $${(value / 1e6).toFixed(2)}M`;
             if (value >= 1e3) return `${context.dataset.label}: $${(value / 1e3).toFixed(2)}K`;
             return `${context.dataset.label}: $${value.toFixed(2)}`;
