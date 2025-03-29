@@ -6,7 +6,7 @@ import { FeeTrendsChart } from './charts/FeeTrendsChart';
 import { TopProtocolsChart } from './charts/TopProtocolsChart';
 
 export function FeesOverview() {
-  const [timeframe, setTimeframe] = useState('24h');
+  const [timeframe, setTimeframe] = useState('7D');
 
   // This would be replaced with real data from your API
   const mockData = {
@@ -20,8 +20,8 @@ export function FeesOverview() {
     ],
     trends: Array.from({ length: 7 }, (_, i) => ({
       date: new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
-      fees: Math.random() * 1000000 + 500000,
-      revenue: Math.random() * 800000 + 300000
+      totalFees: Math.random() * 1000000 + 500000,
+      totalRevenue: Math.random() * 800000 + 300000
     })),
     topProtocols: [
       { name: 'Uniswap', fees: 1000000, revenue: 800000 },
@@ -40,10 +40,9 @@ export function FeesOverview() {
             <SelectValue placeholder="Timeframe" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="24h">24h</SelectItem>
-            <SelectItem value="7d">7d</SelectItem>
-            <SelectItem value="30d">30d</SelectItem>
-            <SelectItem value="90d">90d</SelectItem>
+            <SelectItem value="7D">7D</SelectItem>
+            <SelectItem value="30D">30D</SelectItem>
+            <SelectItem value="90D">90D</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -73,7 +72,7 @@ export function FeesOverview() {
           <CardTitle>Fee Trends</CardTitle>
         </CardHeader>
         <CardContent>
-          <FeeTrendsChart data={mockData.trends} />
+          <FeeTrendsChart data={mockData.trends} timeFrame={timeframe} />
         </CardContent>
       </Card>
     </div>
