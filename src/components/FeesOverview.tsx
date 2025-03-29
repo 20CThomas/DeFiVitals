@@ -18,11 +18,15 @@ export function FeesOverview() {
       { name: 'Yield', value: 300000, color: '#EC4899' },
       { name: 'RWA', value: 200000, color: '#F59E0B' }
     ],
-    trends: Array.from({ length: 7 }, (_, i) => ({
-      date: new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
-      totalFees: Math.random() * 1000000 + 500000,
-      totalRevenue: Math.random() * 800000 + 300000
-    })),
+    trends: Array.from({ length: 90 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (89 - i));
+      return {
+        date: date.toLocaleDateString(),
+        totalFees: Math.random() * 1000000 + 500000,
+        totalRevenue: Math.random() * 800000 + 300000
+      };
+    }),
     topProtocols: [
       { name: 'Uniswap', fees: 1000000, revenue: 800000 },
       { name: 'Aave', fees: 800000, revenue: 600000 },

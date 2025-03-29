@@ -29,7 +29,7 @@ ChartJS.register(
 );
 
 interface TrendData {
-  date: string;
+  date: string | Date;
   totalFees: number;
   totalRevenue: number;
 }
@@ -43,12 +43,16 @@ export function FeeTrendsChart({ data, timeFrame }: FeeTrendsChartProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // Filter data based on timeFrame
-  let filteredData = [...data];
+  // Filter and format data
+  let filteredData = [...data].map(item => ({
+    ...item,
+    date: typeof item.date === 'string' ? item.date : item.date.toLocaleDateString()
+  }));
+
   if (timeFrame === '7D') {
-    filteredData = data.slice(-7);
+    filteredData = filteredData.slice(-7);
   } else if (timeFrame === '30D') {
-    filteredData = data.slice(-30);
+    filteredData = filteredData.slice(-30);
   }
   // For '90D' we use all data
 
