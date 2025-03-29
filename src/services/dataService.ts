@@ -459,78 +459,106 @@ function getHealthIndicators(score: number): { color: LiquidStakingPlatform['hea
 }
 
 export async function fetchLiquidStakingPlatforms(): Promise<LiquidStakingPlatform[]> {
-  // Check if we have valid cached data
-  const now = Date.now();
-  if (platformsCache && (now - lastFetchTime) < CACHE_DURATION) {
-    return platformsCache;
-  }
-
   try {
-    const response = await fetch('https://api.llama.fi/protocols');
-    const data: DefiLlamaProtocol[] = await response.json();
-    
-    const platforms = data.map((protocol) => {
-      // Calculate metrics based on protocol data and market dynamics
-      const tvlRatio = protocol.tvl / (protocol.marketCap || protocol.tvl);
-      
-      // Calculate staking ratio based on protocol type and market conditions
-      let stakingRatio;
-      if (protocol.category?.toLowerCase().includes('liquid staking')) {
-        // For liquid staking protocols, use a more varied ratio
-        stakingRatio = 0.3 + (Math.random() * 0.4); // 30-70%
-      } else {
-        // For other protocols, use a lower ratio
-        stakingRatio = 0.1 + (Math.random() * 0.3); // 10-40%
-      }
-      
-      const liquidityDepth = protocol.tvl * (0.6 + Math.random() * 0.3); // 60-90% of TVL
-      const utilizationRate = 0.5 + Math.random() * 0.4; // 50-90% utilization
-      const averageSlippage = 0.001 + Math.random() * 0.004; // 0.1-0.5% slippage
-      const withdrawalTime = 12 + Math.floor(Math.random() * 36); // 12-48 hours
-      
-      // Calculate health score using our metrics
-      const platformMetrics = {
-        stakingRatio,
-        liquidityDepth,
-        utilizationRate,
-        averageSlippage,
-        withdrawalTime,
-        tvl: protocol.tvl
-      };
-      
-      const healthScore = calculateHealthScore(platformMetrics);
-      const { color, intensity } = getHealthIndicators(healthScore);
-      
-      return {
-        id: protocol.id,
-        name: protocol.name,
-        logo: protocol.logo,
-        category: protocol.category || 'Uncategorized',
-        tvl: protocol.tvl,
-        change24h: protocol.change_1d || 0,
-        change7d: protocol.change_7d || 0,
-        marketCap: protocol.marketCap || 0,
-        chain: protocol.chain,
-        stakingRatio,
-        liquidityDepth,
-        utilizationRate,
-        averageSlippage,
-        withdrawalTime,
-        healthScore,
-        healthColor: color,
-        healthIntensity: intensity
-      };
+    // Fetch real data from DeFi Llama
+    const response = await axios.get(`${DEFILLAMA_API_BASE}/protocols`);
+    const allProtocols: DefiLlamaProtocol[] = response.data;
+
+    // Filter for liquid staking protocols and ensure TVL > 0
+    const liquidStakingProtocols = allProtocols.filter(protocol => {
+      return (
+        protocol.category?.toLowerCase().includes('liquid staking') &&
+        protocol.tvl > 0 && // Ensure TVL is greater than 0
+        !protocol.stablecoin // Exclude stablecoin protocols
+      );
     });
 
-    // Update cache
-    platformsCache = platforms;
-    lastFetchTime = now;
+    // Transform and enrich the data
+    const platforms: LiquidStakingPlatform[] = await Promise.all(
+      liquidStakingProtocols.map(async (protocol) => {
+        // Fetch additional metrics if available
+        let additionalMetrics = {
+          stakingRatio: 0,
+          liquidityDepth: 0,
+          utilizationRate: 0,
+          averageSlippage: 0,
+          withdrawalTime: 24, // Default 24 hours
+        };
 
-    return platforms;
+        // Try to fetch platform-specific metrics
+        try {
+          if (protocol.name.toLowerCase().includes('lido')) {
+            const lidoMetrics = await fetchLidoMetrics();
+            additionalMetrics = calculateLidoHealthMetrics(lidoMetrics);
+          } else if (protocol.name.toLowerCase().includes('rocket')) {
+            try {
+              const rocketMetrics = await fetchRocketPoolMetrics();
+              additionalMetrics = calculateRocketPoolMetrics(rocketMetrics.stats, rocketMetrics.nodeMetrics);
+            } catch {
+              // Use default metrics if Rocket Pool API fails
+              additionalMetrics = {
+                stakingRatio: 0.6, // Conservative estimate
+                liquidityDepth: protocol.tvl * 0.4, // Assume 40% of TVL is liquid
+                utilizationRate: 0.7, // Conservative estimate
+                averageSlippage: 0.002,
+                withdrawalTime: 24
+              };
+            }
+          } else {
+            // For other protocols, calculate estimated metrics based on TVL
+            additionalMetrics = {
+              stakingRatio: 0.5, // Conservative default
+              liquidityDepth: protocol.tvl * 0.3, // Assume 30% of TVL is liquid
+              utilizationRate: 0.6, // Conservative default
+              averageSlippage: 0.003,
+              withdrawalTime: 24
+            };
+          }
+        } catch (error) {
+          console.error(`Error fetching metrics for ${protocol.name}:`, error);
+        }
+
+        // Calculate health score
+        const healthScore = calculateHealthScore({
+          ...additionalMetrics,
+          tvl: protocol.tvl
+        });
+
+        // Get health indicators
+        const healthIndicators = getHealthIndicators(healthScore);
+
+        return {
+          id: protocol.id,
+          name: protocol.name,
+          logo: protocol.logo || '/placeholder-logo.png',
+          chain: protocol.chain,
+          tvl: protocol.tvl,
+          stakingRatio: additionalMetrics.stakingRatio,
+          liquidityDepth: additionalMetrics.liquidityDepth,
+          utilizationRate: additionalMetrics.utilizationRate,
+          averageSlippage: additionalMetrics.averageSlippage,
+          withdrawalTime: additionalMetrics.withdrawalTime,
+          healthScore,
+          healthColor: healthIndicators.color,
+          healthIntensity: healthIndicators.intensity,
+          change24h: protocol.change_1d || 0,
+          change7d: protocol.change_7d || 0
+        };
+      })
+    );
+
+    // Sort by TVL descending and ensure all values are valid
+    return platforms
+      .filter(platform => 
+        platform.tvl > 0 && 
+        platform.stakingRatio > 0 && 
+        platform.liquidityDepth > 0
+      )
+      .sort((a, b) => b.tvl - a.tvl);
+
   } catch (error) {
-    console.error('Error fetching protocols:', error);
-    // Return cached data if available, even if expired
-    return platformsCache || [];
+    console.error('Error fetching liquid staking platforms:', error);
+    return [];
   }
 }
 
