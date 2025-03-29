@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -10,26 +9,37 @@ export function Header() {
   const pathname = usePathname();
   
   return (
-    <header className="border-b border-zinc-800 bg-zinc-950">
+    <header className="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
       <div className="flex h-16 items-center gap-4 px-4 max-w-7xl mx-auto">
-        <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/logo.png"
-            alt="DeFiVitals Logo"
-            width={32}
-            height={32}
-            className="rounded-full"
-          />
-          <span className="text-lg font-semibold">DeFiVitals</span>
-        </Link>
-        <nav className="hidden md:flex items-center gap-6 ml-8">
-          <Link href="/" className={pathname === "/" ? "text-white" : "text-zinc-400 hover:text-white"}>
+        <nav className="flex items-center gap-6">
+          <Link 
+            href="/" 
+            className={`relative py-4 ${
+              pathname === "/" 
+                ? "text-zinc-900 dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-500" 
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+            }`}
+          >
             Overview
           </Link>
-          <Link href="/chains" className={pathname === "/chains" ? "text-white" : "text-zinc-400 hover:text-white"}>
+          <Link 
+            href="/chains" 
+            className={`relative py-4 ${
+              pathname === "/chains" 
+                ? "text-zinc-900 dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-500" 
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+            }`}
+          >
             Chains
           </Link>
-          <Link href="/fees" className={pathname === "/fees" ? "text-white" : "text-zinc-400 hover:text-white"}>
+          <Link 
+            href="/fees" 
+            className={`relative py-4 ${
+              pathname === "/fees" 
+                ? "text-zinc-900 dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-500" 
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+            }`}
+          >
             Fees
           </Link>
         </nav>
