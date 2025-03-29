@@ -20,16 +20,28 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChainOverview } from './EthereumOverview';
 import { Protocols } from './Protocols';
+import { useRouter } from 'next/navigation';
 
 interface OverviewTabsProps {
   defaultTab?: string;
 }
 
 export function OverviewTabs({ defaultTab = 'overview' }: OverviewTabsProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState(defaultTab);
 
+  const handleTabChange = (value: string) => {
+    if (value === 'chains') {
+      router.push('/chains');
+    } else if (value === 'fees') {
+      router.push('/fees');
+    } else {
+      setActiveTab(value);
+    }
+  };
+
   return (
-    <Tabs defaultValue={defaultTab} onValueChange={setActiveTab} className="w-full">
+    <Tabs defaultValue={defaultTab} onValueChange={handleTabChange} className="w-full">
       <div className="border-b border-zinc-800 mb-6">
         <TabsList className="bg-transparent border-b-0">
           <TabsTrigger 
@@ -42,17 +54,13 @@ export function OverviewTabs({ defaultTab = 'overview' }: OverviewTabsProps) {
           </TabsTrigger>
           <TabsTrigger 
             value="chains"
-            className={`px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none ${
-              activeTab === 'chains' ? 'text-white font-medium' : 'text-zinc-400'
-            }`}
+            className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none text-zinc-400"
           >
             Chains
           </TabsTrigger>
           <TabsTrigger 
             value="fees"
-            className={`px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none ${
-              activeTab === 'fees' ? 'text-white font-medium' : 'text-zinc-400'
-            }`}
+            className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none text-zinc-400"
           >
             Fees
           </TabsTrigger>
