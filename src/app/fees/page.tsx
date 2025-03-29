@@ -206,6 +206,40 @@ const CATEGORY_OPTIONS = [
   'RWA'
 ];
 
+// Add this function at the top level
+const getImageUrl = (logo: string) => {
+  // If it's already a full URL, return it
+  if (logo.startsWith('http')) {
+    return logo;
+  }
+  // If it's a relative path, make it absolute
+  return `${process.env.NEXT_PUBLIC_BASE_URL || ''}${logo}`;
+};
+
+// Add this component
+function ProtocolLogo({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
+  const [error, setError] = useState(false);
+  
+  if (error) {
+    return (
+      <div className={`bg-zinc-800 rounded-full flex items-center justify-center ${className}`}>
+        <span className="text-zinc-400 text-xs">{alt.slice(0, 2)}</span>
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={getImageUrl(src)}
+      alt={alt}
+      width={24}
+      height={24}
+      className={`rounded-full ${className}`}
+      onError={() => setError(true)}
+    />
+  );
+}
+
 export default function FeesPage() {
   const [protocols, setProtocols] = useState<ProtocolFee[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -526,15 +560,10 @@ export default function FeesPage() {
                               <td className="py-3 px-4">{index + 1}</td>
                               <td className="py-3 px-4">
                                 <div className="flex items-center gap-3">
-                                  <Image
+                                  <ProtocolLogo
                                     src={protocol.logo}
                                     alt={protocol.name}
-                                    width={24}
-                                    height={24}
-                                    className="rounded-full"
-                                    onError={(e) => {
-                                      (e.target as HTMLImageElement).src = '/placeholder-logo.png';
-                                    }}
+                                    className="w-6 h-6"
                                   />
                                   <span className="font-medium">{protocol.name}</span>
                                 </div>

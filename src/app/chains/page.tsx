@@ -149,6 +149,78 @@ const MOCK_CHAINS: Chain[] = [
   }
 ];
 
+// Add this function at the top level, after imports
+function formatValue(value: number): string {
+  if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
+  if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
+  if (value >= 1e3) return `$${(value / 1e3).toFixed(2)}K`;
+  return `$${value.toFixed(2)}`;
+}
+
+// Add this component at the top level
+function ChainCard({ chain }: { chain: Chain }) {
+  return (
+    <div className="relative group">
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg transform group-hover:scale-105 transition-transform duration-300" />
+      <Card className="relative overflow-hidden backdrop-blur-sm bg-zinc-900/50 border-zinc-800/50 group-hover:border-zinc-700/50 transition-colors">
+        <CardContent className="p-6">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-sm" />
+              <Image
+                src={chain.logo}
+                alt={`${chain.name} logo`}
+                width={48}
+                height={48}
+                className="relative rounded-full"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/placeholder-logo.png';
+                }}
+              />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-white">{chain.name}</h2>
+              <p className="text-sm text-zinc-400">{chain.tokenSymbol}</p>
+            </div>
+            <div className="ml-auto text-right">
+              <p className={`text-lg font-semibold ${chain.change_24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {chain.change_24h >= 0 ? '+' : ''}{chain.change_24h.toFixed(2)}%
+              </p>
+              <p className="text-sm text-zinc-400">24h Change</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <p className="text-sm font-medium text-zinc-400 mb-1">TVL</p>
+              <p className="text-2xl font-bold text-white">{formatValue(chain.tvl)}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-zinc-400 mb-1">7d Change</p>
+              <p className={`text-2xl font-bold ${chain.change_7d >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {chain.change_7d >= 0 ? '+' : ''}{chain.change_7d.toFixed(2)}%
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-zinc-400">Active Protocols</p>
+              <p className="text-lg font-semibold text-white">{chain.protocols}</p>
+            </div>
+            <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
+                style={{ width: `${Math.min(100, (chain.protocols / 400) * 100)}%` }}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 export default function ChainsPage() {
   const [chains, setChains] = useState<Chain[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -169,13 +241,6 @@ export default function ChainsPage() {
     };
     fetchData();
   }, []);
-
-  const formatValue = (value: number) => {
-    if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
-    if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
-    if (value >= 1e3) return `$${(value / 1e3).toFixed(2)}K`;
-    return `$${value.toFixed(2)}`;
-  };
 
   // Filter and sort chains
   const filteredChains = chains
@@ -231,11 +296,18 @@ export default function ChainsPage() {
   return (
     <div className="flex h-screen">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900 via-zinc-900 to-zinc-950">
         <Header />
-        <div className="container mx-auto px-4 py-8 space-y-6">
+        <div className="container mx-auto px-4 py-8 space-y-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <h1 className="text-3xl font-bold">Blockchain Networks</h1>
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
+                Blockchain Networks
+              </h1>
+              <p className="text-zinc-400 mt-2">
+                Explore and analyze different blockchain networks and their metrics
+              </p>
+            </div>
             <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
               <div className="relative w-full md:w-64">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400 w-4 h-4" />
@@ -244,10 +316,10 @@ export default function ChainsPage() {
                   placeholder="Search chains..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-4 py-2 bg-zinc-900/50 border border-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-zinc-500"
                 />
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -255,41 +327,33 @@ export default function ChainsPage() {
                         value={sortBy}
                         onValueChange={(value: SortOption) => setSortBy(value)}
                       >
-                        <SelectTrigger className="w-[180px]">
+                        <SelectTrigger className="w-[180px] bg-zinc-900/50 border-zinc-800">
                           <SelectValue placeholder="Sort by..." />
                         </SelectTrigger>
                         <SelectContent>
                           {Object.entries(SORT_DESCRIPTIONS).map(([key, description]) => (
-                            <SelectItem key={key} value={key} className="pr-8">
-                              <div className="flex items-center justify-between w-full">
-                                <span>{key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ')}</span>
-                                <Info className="ml-2 w-4 h-4 cursor-help" />
+                            <SelectItem key={key} value={key}>
+                              <div className="flex items-center gap-2">
+                                {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
+                                <Info className="w-4 h-4" />
                               </div>
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </TooltipTrigger>
-                    <TooltipContent 
-                      side="right" 
-                      align="start" 
-                      className="z-[100]"
-                      sideOffset={5}
-                    >
+                    <TooltipContent side="right" className="max-w-[300px] z-[100]">
                       <p>{SORT_DESCRIPTIONS[sortBy]}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="icon"
                   onClick={() => setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc')}
-                  className="relative group mr-4"
+                  className="relative group bg-zinc-900/50 border-zinc-800"
                 >
                   {sortDirection === 'desc' ? <SortDesc className="w-4 h-4" /> : <SortAsc className="w-4 h-4" />}
-                  <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
-                    {sortDirection === 'desc' ? 'High to Low' : 'Low to High'}
-                  </span>
                 </Button>
               </div>
             </div>
@@ -306,49 +370,9 @@ export default function ChainsPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
                 >
-                  <Card className="p-6 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
-                    <div className="flex items-center gap-4 mb-4">
-                      <Image
-                        src={chain.logo}
-                        alt={`${chain.name} logo`}
-                        width={48}
-                        height={48}
-                        className="rounded-full"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/placeholder-logo.png';
-                        }}
-                      />
-                      <div>
-                        <h2 className="text-xl font-semibold">{chain.name}</h2>
-                        <p className="text-sm text-zinc-600 dark:text-zinc-400">{chain.tokenSymbol}</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">TVL</p>
-                        <p className="text-lg font-semibold">{formatValue(chain.tvl)}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">24h Change</p>
-                        <p className={`text-lg font-semibold ${chain.change_24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                          {chain.change_24h >= 0 ? '+' : ''}{chain.change_24h.toFixed(2)}%
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">7d Change</p>
-                        <p className={`text-lg font-semibold ${chain.change_7d >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                          {chain.change_7d >= 0 ? '+' : ''}{chain.change_7d.toFixed(2)}%
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Protocols</p>
-                        <p className="text-lg font-semibold">{chain.protocols}</p>
-                      </div>
-                    </div>
-                  </Card>
+                  <ChainCard chain={chain} />
                 </motion.div>
               ))}
             </motion.div>
@@ -360,7 +384,7 @@ export default function ChainsPage() {
                 value={loadMoreAmount}
                 onValueChange={setLoadMoreAmount}
               >
-                <SelectTrigger className="w-[120px]">
+                <SelectTrigger className="w-[120px] bg-zinc-900/50 border-zinc-800">
                   <SelectValue placeholder="Load..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -373,7 +397,7 @@ export default function ChainsPage() {
               <Button
                 variant="outline"
                 onClick={handleLoadMore}
-                className="px-8"
+                className="px-8 bg-zinc-900/50 border-zinc-800"
               >
                 Load More
               </Button>
@@ -381,7 +405,7 @@ export default function ChainsPage() {
           )}
 
           {filteredChains.length === 0 && (
-            <div className="text-center text-zinc-500 dark:text-zinc-400 py-8">
+            <div className="text-center text-zinc-400 py-8">
               No chains found matching your search.
             </div>
           )}
