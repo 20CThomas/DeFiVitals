@@ -623,4 +623,72 @@ export async function fetchProtocols(): Promise<Protocol[]> {
     console.error('Error fetching protocols:', error);
     return [];
   }
+}
+
+const DEFILLAMA_API = 'https://api.llama.fi';
+
+export async function fetchChainTVL() {
+  try {
+    const response = await axios.get(`${DEFILLAMA_API}/v2/chains`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching chain TVL:', error);
+    return [];
+  }
+}
+
+interface ChainTVLData {
+  gecko_id: string;
+  name: string;
+  tokenSymbol?: string;
+  logo?: string;
+  tvl: number;
+  change_24h?: number;
+  change_7d?: number;
+  protocols?: number;
+}
+
+interface ChainMarketCapData {
+  gecko_id: string;
+  mcap: number;
+}
+
+export async function fetchChainData() {
+  try {
+    // Fetch TVL data
+    const tvlResponse = await axios.get<ChainTVLData[]>(`${DEFILLAMA_API}/v2/chains`);
+    const tvlData = tvlResponse.data;
+
+    // Fetch market cap data
+    const mcapResponse = await axios.get<ChainMarketCapData[]>(`${DEFILLAMA_API}/v2/chains/market-cap`);
+    const mcapData = mcapResponse.data;
+
+    // Combine the data
+    const combinedData = tvlData
+      .filter((chain: ChainTVLData) => chain && typeof chain.tvl === 'number') // Filter out invalid TVL entries
+      .map((chain: ChainTVLData) => {
+        const mcapInfo = mcapData.find((m: ChainMarketCapData) => m.gecko_id === chain.gecko_id);
+        const mcap = mcapInfo?.mcap || 0;
+        const tvl = Math.max(0, chain.tvl || 0); // Ensure TVL is never negative
+        
+        return {
+          id: chain.gecko_id || chain.name.toLowerCase(),
+          name: chain.name,
+          tokenSymbol: chain.tokenSymbol || '',
+          logo: chain.logo || '/placeholder-logo.png',
+          tvl,
+          change_24h: chain.change_24h || 0,
+          change_7d: chain.change_7d || 0,
+          marketCap: mcap,
+          mcapToTvl: tvl > 0 ? mcap / tvl : 0,
+          protocols: chain.protocols || 0
+        };
+      })
+      .sort((a, b) => b.marketCap - a.marketCap); // Sort by market cap
+
+    return combinedData;
+  } catch (error) {
+    console.error('Error fetching chain data:', error);
+    return [];
+  }
 } 
