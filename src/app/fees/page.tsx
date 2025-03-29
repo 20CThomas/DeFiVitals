@@ -22,6 +22,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from 'next/image';
+import { FeeDistributionChart } from '@/components/charts/FeeDistributionChart';
+import { FeeTrendsChart } from '@/components/charts/FeeTrendsChart';
+import { TopProtocolsChart } from '@/components/charts/TopProtocolsChart';
 
 // Define protocol fee data type
 interface ProtocolFee {
@@ -239,6 +242,48 @@ function ProtocolLogo({ src, alt, className = "" }: { src: string; alt: string; 
     />
   );
 }
+
+// Add this before the FeesPage component
+const generateTrendData = (protocols: ProtocolFee[]) => {
+  const dates = ['2024-03-01', '2024-03-02', '2024-03-03', '2024-03-04', '2024-03-05', '2024-03-06', '2024-03-07'];
+  return dates.map(date => ({
+    date,
+    fees: protocols.reduce((sum, p) => sum + p.dailyFees * (0.8 + Math.random() * 0.4), 0),
+    revenue: protocols.reduce((sum, p) => sum + p.dailyRevenue * (0.8 + Math.random() * 0.4), 0),
+  }));
+};
+
+const generateDistributionData = (protocols: ProtocolFee[]) => {
+  const categoryTotals = protocols.reduce((acc, protocol) => {
+    acc[protocol.category] = (acc[protocol.category] || 0) + protocol.dailyFees;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const colors = {
+    'Lending': '#3B82F6',
+    'DEX': '#10B981',
+    'Derivatives': '#6366F1',
+    'Liquid Staking': '#8B5CF6',
+    'Yield': '#EC4899',
+    'RWA': '#F59E0B'
+  };
+
+  return Object.entries(categoryTotals).map(([name, value]) => ({
+    name,
+    value,
+    color: colors[name as keyof typeof colors] || '#6B7280'
+  }));
+};
+
+const generateTopProtocolsData = (protocols: ProtocolFee[]) => {
+  return protocols
+    .slice(0, 5)
+    .map(p => ({
+      name: p.name,
+      fees: p.dailyFees,
+      revenue: p.dailyRevenue
+    }));
+};
 
 export default function FeesPage() {
   const [protocols, setProtocols] = useState<ProtocolFee[]>([]);
@@ -512,12 +557,7 @@ export default function FeesPage() {
                   <CardTitle className="text-lg font-medium">Fee Distribution</CardTitle>
                 </CardHeader>
                 <CardContent className="py-2">
-                  <div className="h-48 flex items-center justify-center">
-                    <PieChart className="h-24 w-24 text-blue-500 opacity-70" />
-                  </div>
-                  <div className="text-xs text-center text-zinc-500 dark:text-zinc-400">
-                    Fees by protocol category visualization
-                  </div>
+                  <FeeDistributionChart data={generateDistributionData(filteredProtocols)} />
                 </CardContent>
               </Card>
             </div>
@@ -623,12 +663,7 @@ export default function FeesPage() {
                     <CardTitle className="text-lg font-medium">Top Protocols by Fee Revenue</CardTitle>
                   </CardHeader>
                   <CardContent className="py-2">
-                    <div className="h-64 flex items-center justify-center">
-                      <BarChart className="h-32 w-32 text-blue-500 opacity-70" />
-                    </div>
-                    <div className="text-xs text-center text-zinc-500 dark:text-zinc-400">
-                      Bar chart visualization of top protocols
-                    </div>
+                    <TopProtocolsChart data={generateTopProtocolsData(filteredProtocols)} />
                   </CardContent>
                 </Card>
                 
@@ -637,12 +672,7 @@ export default function FeesPage() {
                     <CardTitle className="text-lg font-medium">Fee Trends Over Time</CardTitle>
                   </CardHeader>
                   <CardContent className="py-2">
-                    <div className="h-64 flex items-center justify-center">
-                      <LineChart className="h-32 w-32 text-blue-500 opacity-70" />
-                    </div>
-                    <div className="text-xs text-center text-zinc-500 dark:text-zinc-400">
-                      Line chart visualization of fee trends
-                    </div>
+                    <FeeTrendsChart data={generateTrendData(filteredProtocols)} />
                   </CardContent>
                 </Card>
               </div>
