@@ -70,20 +70,29 @@
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-zinc-900;
+  @apply bg-zinc-100 dark:bg-zinc-900;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-zinc-700 rounded-full;
+  @apply bg-zinc-300 dark:bg-zinc-700 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-zinc-600;
+  @apply bg-zinc-400 dark:bg-zinc-600;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.zinc.300') theme('colors.zinc.100');
+}
+
+.dark * {
+  scrollbar-color: theme('colors.zinc.700') theme('colors.zinc.900');
 }
 
 /* Tabs styling */

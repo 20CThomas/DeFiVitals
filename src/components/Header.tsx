@@ -16,8 +16,8 @@ export function Header() {
             href="/" 
             className={`relative py-4 ${
               pathname === "/" 
-                ? "text-zinc-900 dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-500" 
-                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                ? "text-blue-500 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-500" 
+                : "text-zinc-600 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-blue-500"
             }`}
           >
             Overview
@@ -26,8 +26,8 @@ export function Header() {
             href="/chains" 
             className={`relative py-4 ${
               pathname === "/chains" 
-                ? "text-zinc-900 dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-500" 
-                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                ? "text-blue-500 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-500" 
+                : "text-zinc-600 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-blue-500"
             }`}
           >
             Chains
@@ -36,8 +36,8 @@ export function Header() {
             href="/fees" 
             className={`relative py-4 ${
               pathname === "/fees" 
-                ? "text-zinc-900 dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-500" 
-                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                ? "text-blue-500 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-500" 
+                : "text-zinc-600 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-blue-500"
             }`}
           >
             Fees
