@@ -44,7 +44,21 @@ export function FeeTrendsChart({ data, timeFrame }: FeeTrendsChartProps) {
   const isDark = theme === 'dark';
 
   // Filter and format data based on timeFrame
-  let filteredData = [...data];
+  const filteredData = (() => {
+    switch (timeFrame) {
+      case 'daily':
+        return data.slice(-1); // Last day
+      case 'weekly':
+        return data.slice(-7); // Last 7 days
+      case 'monthly':
+        return data.slice(-30); // Last 30 days
+      case 'cumulative':
+        return data; // All data
+      default:
+        return data;
+    }
+  })();
+
   const chartData: ChartData<'line'> = {
     labels: filteredData.map(item => item.date),
     datasets: [
