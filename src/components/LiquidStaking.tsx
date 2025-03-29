@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from 'next/image';
+import { ThemeToggle } from './ThemeToggle';
 
 type SortOption = 'score' | 'tvl' | 'change24h' | 'stakingRatio' | 'liquidityDepth' | 'utilizationRate';
 type SortDirection = 'asc' | 'desc';
@@ -122,14 +123,21 @@ export function LiquidStaking() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <h1 className="text-3xl font-bold">Liquid Staking Platforms</h1>
-        <div className="flex gap-4 items-center mr-4">
-          <div className="relative flex-1 md:w-64">
+      <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
+            Liquid Staking
+          </h1>
+          <p className="text-zinc-400 mt-2">
+            Compare and analyze liquid staking protocols
+          </p>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="relative w-full md:w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400 w-4 h-4" />
             <input
               type="text"
-              placeholder="Search platforms..."
+              placeholder="Search protocols..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -143,7 +151,7 @@ export function LiquidStaking() {
                     value={sortBy}
                     onValueChange={(value: SortOption) => setSortBy(value)}
                   >
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-[180px] bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
                       <SelectValue placeholder="Sort by..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -151,33 +159,37 @@ export function LiquidStaking() {
                         <SelectItem key={key} value={key}>
                           <div className="flex items-center gap-2">
                             {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
-                            <Info className="w-4 h-4" />
                           </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </TooltipTrigger>
-                <TooltipContent 
-                  side="right" 
-                  className="max-w-[300px] z-[100]"
-                  sideOffset={5}
-                >
+                <TooltipContent side="right" align="start" sideOffset={10} className="max-w-[250px]">
                   <p>{SORT_DESCRIPTIONS[sortBy]}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc')}
-              className="relative group"
-            >
-              {sortDirection === 'desc' ? <SortDesc className="w-4 h-4" /> : <SortAsc className="w-4 h-4" />}
-              <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
-                {sortDirection === 'desc' ? 'High to Low' : 'Low to High'}
-              </span>
-            </Button>
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc')}
+                    className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800"
+                  >
+                    {sortDirection === 'desc' ? <SortDesc className="w-4 h-4" /> : <SortAsc className="w-4 h-4" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="center">
+                  {sortDirection === 'desc' ? 'High to Low' : 'Low to High'}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <ThemeToggle />
           </div>
         </div>
       </div>
