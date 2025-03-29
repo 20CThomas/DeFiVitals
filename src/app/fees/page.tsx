@@ -317,7 +317,6 @@ export default function FeesPage() {
   const [timeFrame, setTimeFrame] = useState<TimeFrameType>('daily');
   const [selectedChain, setSelectedChain] = useState('All Chains');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
-  const [timeFrameFilter, setTimeFrameFilter] = useState<TimeFrameType>('daily');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -697,18 +696,7 @@ export default function FeesPage() {
                     <CardTitle className="text-lg font-medium">Fee Trends Over Time</CardTitle>
                   </CardHeader>
                   <CardContent className="py-2">
-                    <Tabs 
-                      defaultValue="daily" 
-                      value={timeFrameFilter} 
-                      onValueChange={(value) => setTimeFrameFilter(value as TimeFrameType)}
-                    >
-                      <TabsList className="bg-muted">
-                        <TabsTrigger value="daily">Daily</TabsTrigger>
-                        <TabsTrigger value="weekly">Weekly</TabsTrigger>
-                        <TabsTrigger value="monthly">Monthly</TabsTrigger>
-                        <TabsTrigger value="cumulative">Total</TabsTrigger>
-                      </TabsList>
-                    </Tabs>
+                    <FeeTrendsChart data={generateTimeData()} timeFrame="daily" />
                   </CardContent>
                 </Card>
               </div>
