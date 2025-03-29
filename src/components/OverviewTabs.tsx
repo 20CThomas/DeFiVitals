@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { ChainOverview } from './EthereumOverview';
-import { Protocols } from './Protocols';
 import { useRouter } from 'next/navigation';
 
 interface OverviewTabsProps {
@@ -28,8 +27,10 @@ interface OverviewTabsProps {
 
 export function OverviewTabs({ defaultTab = 'overview' }: OverviewTabsProps) {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState(defaultTab);
 
   const handleTabChange = (value: string) => {
+    setActiveTab(value);
     if (value === 'chains') {
       router.push('/chains');
     } else if (value === 'fees') {
@@ -38,33 +39,42 @@ export function OverviewTabs({ defaultTab = 'overview' }: OverviewTabsProps) {
   };
 
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
-            DeFi Overview
-          </h1>
-          <p className="text-zinc-400 mt-2">
-            Track and analyze DeFi metrics across protocols and chains
-          </p>
-        </div>
-        <div className="flex gap-4">
-          <button
-            onClick={() => router.push('/chains')}
-            className="px-4 py-2 text-zinc-400 hover:text-white transition-colors"
-          >
-            Chains
-          </button>
-          <button
-            onClick={() => router.push('/fees')}
-            className="px-4 py-2 text-zinc-400 hover:text-white transition-colors"
-          >
-            Fees
-          </button>
-        </div>
+    <div className="w-full space-y-8">
+      <div>
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
+          DeFi Overview
+        </h1>
+        <p className="text-zinc-400 mt-2">
+          Track and analyze DeFi metrics across protocols and chains
+        </p>
       </div>
 
-      <ChainOverview />
+      <Tabs defaultValue={activeTab} onValueChange={handleTabChange} className="w-full">
+        <TabsList className="bg-transparent border-b border-zinc-800 w-full justify-start h-auto p-0">
+          <TabsTrigger
+            value="overview"
+            className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none rounded-none"
+          >
+            Overview
+          </TabsTrigger>
+          <TabsTrigger
+            value="chains"
+            className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none rounded-none"
+          >
+            Chains
+          </TabsTrigger>
+          <TabsTrigger
+            value="fees"
+            className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none rounded-none"
+          >
+            Fees
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="mt-6">
+          <ChainOverview />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 } 
