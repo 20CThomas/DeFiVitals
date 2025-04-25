@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from 'next/image';
+import Link from 'next/link';
 
 // Define chain data type
 interface Chain {
@@ -159,7 +160,11 @@ function formatValue(value: number): string {
 
 // Add this component at the top level
 function ChainCard({ chain }: { chain: Chain }) {
-  return (
+  // Determine if this chain has a dedicated page
+  const hasDedicatedPage = ['Solana', 'Polygon'].includes(chain.name);
+  
+  // Create the card content
+  const cardContent = (
     <div className="relative group">
       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg transform group-hover:scale-105 transition-transform duration-300" />
       <Card className="relative overflow-hidden backdrop-blur-sm bg-background/50 border-border/50 group-hover:border-border/80 transition-colors">
@@ -215,10 +220,28 @@ function ChainCard({ chain }: { chain: Chain }) {
               />
             </div>
           </div>
+          
+          {hasDedicatedPage && (
+            <div className="mt-4 text-center">
+              <Link 
+                href={`/chains/${chain.name.toLowerCase()}`}
+                className="text-sm text-blue-400 hover:text-blue-300"
+              >
+                View Details
+              </Link>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
   );
+  
+  // If the chain has a dedicated page, wrap it in a Link
+  if (hasDedicatedPage) {
+    return cardContent;
+  }
+  
+  return cardContent;
 }
 
 export default function ChainsPage() {
@@ -231,14 +254,82 @@ export default function ChainsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading data
+    // Fetch real chain data
     const fetchData = async () => {
       setIsLoading(true);
-      // Simulate network request
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setChains(MOCK_CHAINS);
-      setIsLoading(false);
+      try {
+        // Fetch all chains data
+        const response = await fetch('/api/chains');
+        if (!response.ok) {
+          throw new Error('Failed to fetch chain data');
+        }
+        const allChains = await response.json();
+        
+        // Fetch specific data for Solana and Polygon
+        const [solanaRes, polygonRes] = await Promise.all([
+          fetch('/api/chains/solana'),
+          fetch('/api/chains/polygon')
+        ]);
+        
+        // Process the data
+        let chainData = [...MOCK_CHAINS]; // Start with mock data as fallback
+        
+        if (response.ok && allChains.length > 0) {
+          // Replace with real data if available
+          chainData = allChains.map((chain: any) => ({
+            id: chain.id || chain.name.toLowerCase(),
+            name: chain.name,
+            tvl: chain.tvl || 0,
+            change_24h: chain.change_24h || 0,
+            change_7d: chain.change_7d || 0,
+            protocols: chain.protocols || 0,
+            logo: chain.logo || `https://defillama.com/chain-icons/rsz_${chain.name.toLowerCase()}.jpg`,
+            tokenSymbol: chain.tokenSymbol || ''
+          }));
+        }
+        
+        // Enhance Solana data if available
+        if (solanaRes.ok) {
+          const solanaData = await solanaRes.json();
+          const solanaIndex = chainData.findIndex(c => c.name.toLowerCase() === 'solana');
+          
+          if (solanaIndex >= 0 && solanaData) {
+            chainData[solanaIndex] = {
+              ...chainData[solanaIndex],
+              tvl: solanaData.tvl || chainData[solanaIndex].tvl,
+              change_24h: solanaData.change_24h || chainData[solanaIndex].change_24h,
+              change_7d: solanaData.change_7d || chainData[solanaIndex].change_7d,
+              protocols: solanaData.protocols?.length || chainData[solanaIndex].protocols
+            };
+          }
+        }
+        
+        // Enhance Polygon data if available
+        if (polygonRes.ok) {
+          const polygonData = await polygonRes.json();
+          const polygonIndex = chainData.findIndex(c => c.name.toLowerCase() === 'polygon');
+          
+          if (polygonIndex >= 0 && polygonData) {
+            chainData[polygonIndex] = {
+              ...chainData[polygonIndex],
+              tvl: polygonData.tvl || chainData[polygonIndex].tvl,
+              change_24h: polygonData.change_24h || chainData[polygonIndex].change_24h,
+              change_7d: polygonData.change_7d || chainData[polygonIndex].change_7d,
+              protocols: polygonData.protocols?.length || chainData[polygonIndex].protocols
+            };
+          }
+        }
+        
+        setChains(chainData);
+      } catch (error) {
+        console.error('Error fetching chain data:', error);
+        // Fallback to mock data
+        setChains(MOCK_CHAINS);
+      } finally {
+        setIsLoading(false);
+      }
     };
+    
     fetchData();
   }, []);
 

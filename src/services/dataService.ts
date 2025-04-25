@@ -122,7 +122,7 @@ async function fetchTokenPrice(currency: Currency): Promise<number> {
   }
 }
 
-export async function fetchAggregatedData(chain: 'Ethereum' | 'Bitcoin' = 'Ethereum'): Promise<AggregatedData> {
+export async function fetchAggregatedData(chain: 'Ethereum' | 'Bitcoin' | 'Solana' | 'Polygon' = 'Ethereum'): Promise<AggregatedData> {
   try {
     // Check if we need to refresh the cache
     const now = Date.now();
@@ -275,7 +275,7 @@ interface DefiLlamaTvlDataPoint {
   totalLiquidityUSD: number | null;  // The API returns totalLiquidityUSD instead of tvl
 }
 
-export async function fetchHistoricalData(days: number = 90, chain: 'Ethereum' | 'Bitcoin' = 'Ethereum'): Promise<ChartData> {
+export async function fetchHistoricalData(days: number = 90, chain: 'Ethereum' | 'Bitcoin' | 'Solana' | 'Polygon' = 'Ethereum'): Promise<ChartData> {
   try {
     // Fetch TVL data for the specified chain
     const tvlResponse = await axios.get<DefiLlamaTvlDataPoint[]>(`${DEFILLAMA_API_BASE}/charts/${chain}`);
@@ -665,16 +665,15 @@ export async function fetchChainData() {
 
     // Combine the data
     const combinedData = tvlData
-      .filter((chain: ChainTVLData) => chain && typeof chain.tvl === 'number') // Filter out invalid TVL entries
-      .map((chain: ChainTVLData) => {
-        const mcapInfo = mcapData.find((m: ChainMarketCapData) => m.gecko_id === chain.gecko_id);
+      .map((chain) => {
+        const mcapInfo = mcapData.find((m) => m.gecko_id === chain.gecko_id);
+        const tvl = chain.tvl || 0;
         const mcap = mcapInfo?.mcap || 0;
-        const tvl = Math.max(0, chain.tvl || 0); // Ensure TVL is never negative
-        
+
         return {
-          id: chain.gecko_id || chain.name.toLowerCase(),
+          id: chain.gecko_id,
           name: chain.name,
-          tokenSymbol: chain.tokenSymbol || '',
+          tokenSymbol: chain.tokenSymbol,
           logo: chain.logo || '/placeholder-logo.png',
           tvl,
           change_24h: chain.change_24h || 0,
@@ -691,4 +690,55 @@ export async function fetchChainData() {
     console.error('Error fetching chain data:', error);
     return [];
   }
-} 
+}
+
+export interface ChainProtocol {
+  name: string;
+  logo: string;
+  category: string;
+  tvl: number;
+  change_24h: number;
+  change_7d?: number;
+}
+
+export async function fetchChainProtocols(chainName: string): Promise<ChainProtocol[]> {
+  try {
+    // Normalize chain name for DeFi Llama API
+    const normalizedChainName = chainName.toLowerCase();
+    
+    // Fetch protocols from DeFi Llama
+    const response = await axios.get(`${DEFILLAMA_API}/protocols`);
+    const allProtocols: DefiLlamaProtocol[] = response.data;
+    
+    // Filter protocols by chain
+    const chainProtocols = allProtocols.filter(protocol => {
+      // Check if the protocol's chain matches our target chain
+      // DeFi Llama sometimes uses different naming conventions
+      const protocolChain = protocol.chain.toLowerCase();
+      
+      if (normalizedChainName === 'solana') {
+        return protocolChain === 'solana';
+      } else if (normalizedChainName === 'polygon') {
+        return protocolChain === 'polygon' || protocolChain === 'polygon pos';
+      }
+      
+      return protocolChain === normalizedChainName;
+    });
+    
+    // Transform to our interface
+    return chainProtocols
+      .filter(protocol => protocol.tvl > 0) // Only include protocols with TVL
+      .map(protocol => ({
+        name: protocol.name,
+        logo: protocol.logo || '/placeholder-logo.png',
+        category: protocol.category || 'Other',
+        tvl: protocol.tvl,
+        change_24h: protocol.change_1d || 0,
+        change_7d: protocol.change_7d || 0
+      }))
+      .sort((a, b) => b.tvl - a.tvl); // Sort by TVL descending
+  } catch (error) {
+    console.error(`Error fetching ${chainName} protocols:`, error);
+    return [];
+  }
+}

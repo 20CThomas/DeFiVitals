@@ -18,7 +18,8 @@ import {
   Bookmark
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { fetchAggregatedData, fetchHistoricalData, AggregatedData, ChartData } from '../services/dataService';
+import { AggregatedData, ChartData } from '../services/dataService';
+import { fetchAggregatedDataWithCache, fetchHistoricalDataWithCache } from '../services/firebaseDataService';
 import { formatNumber, formatPercentage, formatCurrency, Currency } from '../utils/formatters';
 import { Line } from 'react-chartjs-2';
 import {
@@ -57,7 +58,7 @@ ChartJS.register(
   Filler
 );
 
-type Chain = 'Ethereum' | 'Bitcoin';
+type Chain = 'Ethereum' | 'Bitcoin' | 'Solana' | 'Polygon';
 
 export function ChainOverview() {
   const [chain, setChain] = useState<Chain>('Ethereum');
@@ -73,10 +74,15 @@ export function ChainOverview() {
       try {
         setLoading(true);
         setError(null);
+        console.log(`Fetching data for ${chain} with timeframe ${timeframe}`);
+        
+        // Use the cached versions of the data fetching functions
         const [aggregatedData, historicalData] = await Promise.all([
-          fetchAggregatedData(chain),
-          fetchHistoricalData(timeframe, chain)
+          fetchAggregatedDataWithCache(chain),
+          fetchHistoricalDataWithCache(timeframe, chain)
         ]);
+        
+        console.log('Data fetched successfully');
         setData(aggregatedData);
         setChartData(historicalData);
       } catch (err) {
@@ -253,6 +259,20 @@ export function ChainOverview() {
               onClick={() => setChain('Bitcoin')}
             >
               BTC
+            </Button>
+            <Button
+              variant={chain === 'Solana' ? "default" : "outline"}
+              size="sm"
+              onClick={() => setChain('Solana')}
+            >
+              SOL
+            </Button>
+            <Button
+              variant={chain === 'Polygon' ? "default" : "outline"}
+              size="sm"
+              onClick={() => setChain('Polygon')}
+            >
+              MATIC
             </Button>
           </div>
         </div>
