@@ -37,4 +37,31 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
+---
+## Archetecure
+
+For the purpose of a class assignment, we implemented an edge computing architecture using a Distributed Virtualized Infrastructure with a Secure Networking Overlay. This project demonstrates how edge devices in different physical locations can securely operate as a cohesive unit by leveraging virtualization, container orchestration, and VPN-based communication.
+
+We built the infrastructure using:
+
+- Proxmox VE 8.x to host virtual machines across two physically separated locations
+
+- Tailscale to establish a zero-trust, encrypted mesh VPN between all nodes (Proxmox and VMs)
+
+- Corosync for Proxmox cluster communication over Tailscale IPs
+
+- Kubernetes (via kubeadm) to orchestrate container workloads across both nodes
+
+Two Ubuntu virtual machines (one Kubernetes control-plane and one worker node) were deployed, each running inside a Proxmox VM at different sites. These VMs were connected to the same Tailscale Tailnet, allowing secure, private communication without any public IPs or port forwarding. Additionally, we connected an AWS cloud instance as an additional Kubernetes node to demonstrate the hybrid, cloud-edge capability of this system.
+
+This architecture demonstrates:
+
+- Low-latency cluster communication over Tailscale
+
+- Secure, scalable, and remotely manageable infrastructure
+
+- Hybrid cloud-edge Kubernetes deployments
+
+You can view the detailed infrastructure setup and step-by-step instructions [Proxmox & Kubernetes Cluster over Tailscale VPN](https://github.com/Zanderskier/Proxmox-Kubernetes-Cluster-over-Tailscale-VPN/blob/main/README.md) 
+ 
 <!-- Test commit to verify GitHub attribution -->
