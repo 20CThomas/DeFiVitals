@@ -38,7 +38,7 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 ---
-## Archetecure
+## Architecture
 
 For the purpose of a class assignment, we implemented an edge computing architecture using a Distributed Virtualized Infrastructure with a Secure Networking Overlay. This project demonstrates how edge devices in different physical locations can securely operate as a cohesive unit by leveraging virtualization, container orchestration, and VPN-based communication.
 
