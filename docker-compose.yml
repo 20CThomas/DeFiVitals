@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  # Frontend Service (Next.js)
+  frontend:
+    build:
+      context: ./services/frontend
+      dockerfile: Dockerfile
+      target: deps
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./services/frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://api:3001
+      - NEXT_PUBLIC_DATA_SERVICE_URL=http://data:3002
+      - NEXT_PUBLIC_ANALYTICS_URL=http://analytics:3003
+    env_file:
+      - .env.local
+    depends_on:
+      - api
+      - data
+      - analytics
+    networks:
+      - defivitals-network
+
+  # API Service (DeFi data)
+  api:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - defivitals-network
+
+  # Data Service (Firebase operations)
+  data:
+    build:
+      context: ./services/data
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=development
+      - REDIS_URL=redis://redis:6379
+    env_file:
+      - .env.local
+    depends_on:
+      - redis
+    networks:
+      - defivitals-network
+
+  # Analytics Service
+  analytics:
+    build:
+      context: ./services/analytics
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=development
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - defivitals-network
+
+  # Redis for caching
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - defivitals-network
+
+volumes:
+  redis-data:
+
+networks:
+  defivitals-network:
+    driver: bridge 
