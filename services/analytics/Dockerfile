@@ -19,9 +19,9 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY package.json ./
 
-EXPOSE 3003
+EXPOSE 3002
 
-ENV PORT 3003
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3002
+ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "dist/index.js"] 
