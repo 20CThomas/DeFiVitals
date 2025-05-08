@@ -1,59 +1,148 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+'use client';
 
-interface FeeData extends Record<string, unknown> {
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+  ChartData,
+  ChartOptions,
+  TooltipItem,
+  Scale,
+  ScaleOptionsByType,
+  CoreScaleOptions,
+  Tick
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+import { useTheme } from 'next-themes';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
+
+interface TrendData {
   date: string;
   fees: number;
   revenue: number;
 }
 
-interface FeeTrendsProps {
-  data: FeeData[];
+interface FeeTrendsChartProps {
+  data: TrendData[];
+  timeFrame: 'daily' | 'weekly' | 'monthly' | 'cumulative';
 }
 
-export function FeeTrendsChart({ data }: FeeTrendsProps) {
+export function FeeTrendsChart({ data, timeFrame }: FeeTrendsChartProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  const chartData: ChartData<'line'> = {
+    labels: data.map(item => item.date),
+    datasets: [
+      {
+        label: 'Total Fees',
+        data: data.map(item => item.fees),
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        fill: true,
+        tension: 0.4,
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+      },
+      {
+        label: 'Protocol Revenue',
+        data: data.map(item => item.revenue),
+        borderColor: '#8b5cf6',
+        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+        fill: true,
+        tension: 0.4,
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+      },
+    ],
+  };
+
+  const options: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      intersect: false,
+      mode: 'index',
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+          color: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+        },
+        ticks: {
+          color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+          maxRotation: 0,
+          autoSkip: true,
+          maxTicksLimit: timeFrame === 'daily' ? 1 : timeFrame === 'weekly' ? 7 : 10,
+        },
+      },
+      y: {
+        grid: {
+          color: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+        },
+        beginAtZero: true,
+        ticks: {
+          color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+          callback: function(this: Scale<CoreScaleOptions>, value: number | string) {
+            const numValue = typeof value === 'number' ? value : parseFloat(value);
+            if (numValue >= 1e6) return `$${(numValue / 1e6).toFixed(1)}M`;
+            if (numValue >= 1e3) return `$${(numValue / 1e3).toFixed(1)}K`;
+            return `$${numValue}`;
+          },
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        position: 'top' as const,
+        labels: {
+          color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+          padding: 20,
+          usePointStyle: true,
+          pointStyle: 'circle',
+        },
+      },
+      tooltip: {
+        backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+        titleColor: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+        bodyColor: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+        borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+        borderWidth: 1,
+        padding: 12,
+        callbacks: {
+          label: function(context: TooltipItem<'line'>) {
+            const value = context.raw as number;
+            if (value >= 1e6) return `${context.dataset.label}: $${(value / 1e6).toFixed(2)}M`;
+            if (value >= 1e3) return `${context.dataset.label}: $${(value / 1e3).toFixed(2)}K`;
+            return `${context.dataset.label}: $${value.toFixed(2)}`;
+          },
+        },
+      },
+    },
+  };
+
   return (
-    <div className="w-full h-[300px]">
-      <ResponsiveContainer>
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-          <XAxis 
-            dataKey="date" 
-            stroke="#9CA3AF"
-            tick={{ fill: '#9CA3AF' }}
-          />
-          <YAxis 
-            stroke="#9CA3AF"
-            tick={{ fill: '#9CA3AF' }}
-            tickFormatter={(value: string | number) => {
-              const numValue = typeof value === 'string' ? parseFloat(value) : value;
-              return `$${(numValue / 1e6).toFixed(0)}M`;
-            }}
-          />
-          <Tooltip
-            formatter={(value: string | number, name?: string) => {
-              const numValue = typeof value === 'string' ? parseFloat(value) : value;
-              return [`$${(numValue / 1e6).toFixed(2)}M`, name || 'Amount'];
-            }}
-          />
-          <Legend />
-          <Line 
-            type="monotone" 
-            dataKey="fees" 
-            stroke="#3B82F6" 
-            strokeWidth={2}
-            dot={false}
-            name="Total Fees"
-          />
-          <Line 
-            type="monotone" 
-            dataKey="revenue" 
-            stroke="#10B981" 
-            strokeWidth={2}
-            dot={false}
-            name="Protocol Revenue"
-          />
-        </LineChart>
-      </ResponsiveContainer>
+    <div style={{ height: '300px', width: '100%' }}>
+      <Line data={chartData} options={options} />
     </div>
   );
 } 
