@@ -46,3 +46,12 @@ logs
 
 # Redis
 dump.rdb
+
+# Container images and backups
+*.tar
+*.zip
+container-images/
+backup.zip
+
+# Images
+
