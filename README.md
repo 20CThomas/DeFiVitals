@@ -105,8 +105,66 @@ npm run dev
 - Prometheus metrics available at: http://localhost:3003/metrics
 - Redis monitoring available at: http://localhost:6379
 - 
-## Images 
-The built images can be obtained from the following [dropbox link](https://www.dropbox.com/scl/fi/hy81988hne76lzyriedgn/Images.zip?rlkey=qo1zxxclvvf7pt51hxwho43i8&st=91sbxlk3&dl=0).
+## Deployment Method (with Image Assets)
+
+This method includes all necessary image assets for a complete deployment.
+
+### Prerequisites
+- Docker and Docker Compose installed
+- Git installed
+- Access to the image assets package
+
+### Step 1: Clone and Setup
+```bash
+git clone https://github.com/20CThomas/DeFiVitals.git
+cd DeFiVitals
+```
+
+### Step 2: Download Required Assets
+1. Download the image assets package from [here](https://www.dropbox.com/scl/fi/hy81988hne76lzyriedgn/Images.zip?rlkey=qo1zxxclvvf7pt51hxwho43i8&st=91sbxlk3&dl=0)
+2. Extract `Images.zip`
+3. Place the extracted images in:
+   ```
+   services/frontend/public/images/
+   ```
+
+### Step 3: Build and Run
+```bash
+# Build all service images
+./build-images.sh
+
+# Create the Docker network
+docker network create defivitals-network
+
+# Run the services
+docker run -d --name redis -p 6379:6379 --network defivitals-network redis:alpine
+docker run -d --name api -p 3001:3001 --network defivitals-network defivitals-api:latest
+docker run -d --name data -p 3003:3003 --network defivitals-network defivitals-data:latest
+docker run -d --name analytics -p 3002:3002 --network defivitals-network defivitals-analytics:latest
+docker run -d --name frontend -p 3000:3000 --network defivitals-network defivitals-frontend:latest
+```
+
+### Step 4: Verify Deployment
+Access the services at:
+- Frontend: http://localhost:3000
+- API: http://localhost:3001
+- Data Service: http://localhost:3003
+- Analytics Service: http://localhost:3002
+
+### Troubleshooting
+If you encounter missing image errors:
+1. Verify the images are correctly placed in `services/frontend/public/images/`
+2. Rebuild the frontend container:
+   ```bash
+   docker stop frontend
+   docker rm frontend
+   docker run -d --name frontend -p 3000:3000 --network defivitals-network defivitals-frontend:latest
+   ```
+
+### Notes
+- This method includes all necessary image assets for a complete deployment
+- The frontend service requires these images for proper display of UI elements and charts
+- Make sure to place the images before building the frontend container
 ## Contributing
 
 1. Fork the repository
