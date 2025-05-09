@@ -204,7 +204,7 @@ This architecture demonstrates:
 
 You can view the detailed infrastructure setup and step-by-step instructions [Proxmox & Kubernetes Cluster over Tailscale VPN](https://github.com/Zanderskier/Proxmox-Kubernetes-Cluster-over-Tailscale-VPN/blob/main/README.md) 
 ## Full Architecture Diagram
-[Project Diagram](ApplicationArchitecture Diagram.png)
+![ApplicationArchitecture Diagram.png](https://github.com/20CThomas/DeFiVitals/blob/7b6f5242dd3a5289cdc2b41558e14f5d72be4f30/ApplicationArchitecture%20Diagram.png)
 <!-- Test commit to verify GitHub attribution -->
 ## Key Contributors
 - Charles Thomas (cthomas5@csus.edu) - Frontend Developer
