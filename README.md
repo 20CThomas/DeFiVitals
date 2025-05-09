@@ -52,13 +52,6 @@ docker-compose up --build
 - Data Service: http://localhost:3002
 - Analytics Service: http://localhost:3003
 
-### Production Mode
-
-1. Build the services:
-```bash
-docker-compose -f docker-compose.prod.yml up --build
-```
-
 ## Development
 
 ### Frontend Service
