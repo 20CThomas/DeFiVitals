@@ -203,8 +203,8 @@ This architecture demonstrates:
 - Hybrid cloud-edge Kubernetes deployments
 
 You can view the detailed infrastructure setup and step-by-step instructions [Proxmox & Kubernetes Cluster over Tailscale VPN](https://github.com/Zanderskier/Proxmox-Kubernetes-Cluster-over-Tailscale-VPN/blob/main/README.md) 
-## Full Architecture Image
-
+## Full Architecture Diagram
+[Project Diagram](ApplicationArchitecture Diagram.png)
 <!-- Test commit to verify GitHub attribution -->
 ## Key Contributors
 - Charles Thomas (cthomas5@csus.edu) - Frontend Developer
