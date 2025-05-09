@@ -104,7 +104,9 @@ npm run dev
 
 - Prometheus metrics available at: http://localhost:3003/metrics
 - Redis monitoring available at: http://localhost:6379
-
+- 
+## Images 
+The built images can be obtained from the following [dropbox link](https://www.dropbox.com/scl/fi/hy81988hne76lzyriedgn/Images.zip?rlkey=qo1zxxclvvf7pt51hxwho43i8&st=91sbxlk3&dl=0).
 ## Contributing
 
 1. Fork the repository
