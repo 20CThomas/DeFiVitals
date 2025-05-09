@@ -152,3 +152,9 @@ This architecture demonstrates:
 You can view the detailed infrastructure setup and step-by-step instructions [Proxmox & Kubernetes Cluster over Tailscale VPN](https://github.com/Zanderskier/Proxmox-Kubernetes-Cluster-over-Tailscale-VPN/blob/main/README.md) 
  
 <!-- Test commit to verify GitHub attribution -->
+## Key Contributors
+- Charles Thomas (cthomas5@csus.edu) - Frontend Developer
+- Alexander Fails (afails@csus.edu) - Network Architect
+- Andrei Bayani (adbayani@csus.edu) - Deployment Tester
+- Rhea Dsouza (rheabenedictadsouza@csus.edu) - Firebase Implementation
+- Abubaker Sayyed (abubakersayyed@csus.edu) - Containerization
