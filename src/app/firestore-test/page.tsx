@@ -6,13 +6,40 @@ import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, Timestamp, deleteDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, Timestamp, deleteDoc, doc, setDoc } from 'firebase/firestore';
+
+interface TestData {
+  id: string;
+  message: string;
+  timestamp: {
+    toDate: () => Date;
+  };
+}
 
 export default function FirestoreTestPage() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
-  const [testData, setTestData] = useState<any[]>([]);
+  const [testData, setTestData] = useState<TestData[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [connectionStatus, setConnectionStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
+
+  // Check Firestore connection
+  useEffect(() => {
+    const checkConnection = async () => {
+      try {
+        const testRef = doc(db, 'test', 'connection-test');
+        await setDoc(testRef, { timestamp: Timestamp.now() });
+        await deleteDoc(testRef);
+        setConnectionStatus('connected');
+      } catch (error) {
+        console.error('Firestore connection error:', error);
+        setConnectionStatus('disconnected');
+        setMessage(`Connection error: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    };
+
+    checkConnection();
+  }, []);
 
   // Function to test writing to Firestore
   const testFirestore = async () => {
@@ -28,6 +55,7 @@ export default function FirestoreTestPage() {
 
       setMessage(`Success! Document written with ID: ${docRef.id}`);
       setStatus('success');
+      setConnectionStatus('connected');
       
       // Refresh test data
       setRefreshKey(prev => prev + 1);
@@ -35,6 +63,7 @@ export default function FirestoreTestPage() {
       console.error('Error testing Firestore:', error);
       setMessage(`Error: ${error instanceof Error ? error.message : String(error)}`);
       setStatus('error');
+      setConnectionStatus('disconnected');
     }
   };
 
@@ -69,8 +98,9 @@ export default function FirestoreTestPage() {
       const querySnapshot = await getDocs(collection(db, 'test'));
       const data = querySnapshot.docs.map(document => ({
         id: document.id,
-        ...document.data()
-      }));
+        message: document.data().message,
+        timestamp: document.data().timestamp
+      })) as TestData[];
       setTestData(data);
     } catch (error) {
       console.error('Error fetching test data:', error);
@@ -117,6 +147,16 @@ export default function FirestoreTestPage() {
                   >
                     Clear Test Data
                   </Button>
+                </div>
+
+                <div className={`p-3 rounded-md text-center ${
+                  connectionStatus === 'connected' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                  connectionStatus === 'disconnected' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                  'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                }`}>
+                  Connection Status: {connectionStatus === 'checking' ? 'Checking...' : 
+                                   connectionStatus === 'connected' ? 'Connected' : 
+                                   'Disconnected'}
                 </div>
                 
                 {message && (

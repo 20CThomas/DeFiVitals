@@ -8,10 +8,22 @@ import { Button } from '@/components/ui/button';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, setDoc, getDoc, Timestamp, deleteDoc } from 'firebase/firestore';
 
+interface CacheEntry {
+  id: string;
+  data: {
+    message: string;
+    number: number;
+    isTest: boolean;
+  };
+  timestamp: {
+    toDate: () => Date;
+  };
+}
+
 export default function CacheTestPage() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
-  const [cacheData, setCacheData] = useState<any[]>([]);
+  const [cacheData, setCacheData] = useState<CacheEntry[]>([]);
 
   // Test writing to the cache collection
   const testWriteCache = async () => {
@@ -67,8 +79,9 @@ export default function CacheTestPage() {
       
       const data = querySnapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data()
-      }));
+        data: doc.data().data,
+        timestamp: doc.data().timestamp
+      })) as CacheEntry[];
       
       setCacheData(data);
       

@@ -1,6 +1,6 @@
 'use client';
 
-import { FirebaseTest } from '@/components/FirebaseTest';
+import { FirebaseConnectionTest } from '@/components/FirebaseConnectionTest';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 
@@ -16,10 +16,10 @@ export default function FirebaseTestPage() {
               Firebase Test
             </h1>
             <p className="text-muted-foreground mb-8">
-              This page tests your Firebase and Firestore connection. Make sure you've set up your environment variables correctly.
+              This page tests your Firebase connection. Check the browser console for detailed logs.
             </p>
             
-            <FirebaseTest />
+            <FirebaseConnectionTest />
           </div>
         </main>
       </div>

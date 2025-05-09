@@ -6,10 +6,18 @@ import { collection, addDoc, getDocs, Timestamp } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
+interface TestData {
+  id: string;
+  message: string;
+  timestamp: {
+    toDate: () => Date;
+  };
+}
+
 export function FirebaseTest() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
-  const [testData, setTestData] = useState<any[]>([]);
+  const [testData, setTestData] = useState<TestData[]>([]);
 
   // Function to test writing to Firestore
   const testFirestore = async () => {
@@ -41,8 +49,9 @@ export function FirebaseTest() {
       const querySnapshot = await getDocs(collection(db, 'test'));
       const data = querySnapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data()
-      }));
+        message: doc.data().message,
+        timestamp: doc.data().timestamp
+      })) as TestData[];
       setTestData(data);
     } catch (error) {
       console.error('Error fetching test data:', error);

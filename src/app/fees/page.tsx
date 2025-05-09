@@ -558,15 +558,15 @@ export default function FeesPage() {
                   
                   <div>
                     <label className="text-sm font-medium block mb-2">Sort By</label>
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                       <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
                             <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Sort by" />
-                              </SelectTrigger>
-                              <SelectContent>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Sort by" />
+                          </SelectTrigger>
+                          <SelectContent>
                                 {Object.entries(SORT_DESCRIPTIONS).map(([key, description]) => (
                                   <SelectItem key={key} value={key}>
                                     <div className="flex items-center gap-2">
@@ -574,25 +574,25 @@ export default function FeesPage() {
                                     </div>
                                   </SelectItem>
                                 ))}
-                              </SelectContent>
-                            </Select>
-                          </TooltipTrigger>
-                          <TooltipContent side="right" className="max-w-[300px] z-[100]">
+                          </SelectContent>
+                        </Select>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="max-w-[300px] z-[100]">
                             <p>{SORT_DESCRIPTIONS[sortBy]}</p>
-                          </TooltipContent>
-                        </Tooltip>
+                      </TooltipContent>
+                    </Tooltip>
                       </TooltipProvider>
                       
-                      <Button
+                    <Button
                         variant="outline"
-                        size="icon"
+                      size="icon"
                         onClick={() => setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc')}
                         className="ml-2"
                         aria-label={sortDirection === 'desc' ? 'Sort descending' : 'Sort ascending'}
                       >
                         {sortDirection === 'desc' ? <SortDesc className="h-4 w-4" /> : <SortAsc className="h-4 w-4" />}
                       </Button>
-                    </div>
+                      </div>
                   </div>
                 </CardContent>
               </Card>
@@ -701,7 +701,7 @@ export default function FeesPage() {
                   )}
                 </CardContent>
               </Card>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                 <Card className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
                   <CardHeader className="pb-2">
@@ -715,16 +715,16 @@ export default function FeesPage() {
                 <Card className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg font-medium">Fee Trends Over Time</CardTitle>
-                  </CardHeader>
-                  <CardContent className="py-2">
+                </CardHeader>
+                <CardContent className="py-2">
                     <FeeTrendsChart data={generateTimeData(timeFrame)} timeFrame={timeFrame} />
-                  </CardContent>
-                </Card>
+                </CardContent>
+              </Card>
               </div>
             </div>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
     </div>
   );
 } 

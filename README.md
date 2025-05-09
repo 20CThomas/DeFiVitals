@@ -1,41 +1,128 @@
 # DeFiVitals
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+A microservices-based DeFi analytics platform that provides real-time insights into various DeFi protocols and chains.
 
-## Getting Started
+## Architecture
 
-First, run the development server:
+The platform consists of the following microservices:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Frontend Service** (Port 3000): Next.js web application
+- **API Service** (Port 3001): DeFi data fetching and processing
+- **Data Service** (Port 3002): Firebase/Firestore operations
+- **Analytics Service** (Port 3003): Metrics collection and monitoring
+- **Redis** (Port 6379): Shared caching layer
+
+## Prerequisites
+
+- Docker and Docker Compose
+- Node.js 20.x or later
+- npm 10.x or later
+
+## Environment Setup
+
+1. Create a `.env.local` file in the root directory with the following variables:
+```env
+# Firebase Configuration
+FIREBASE_API_KEY=your_api_key
+FIREBASE_AUTH_DOMAIN=your_auth_domain
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_STORAGE_BUCKET=your_storage_bucket
+FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+FIREBASE_APP_ID=your_app_id
+FIREBASE_MEASUREMENT_ID=your_measurement_id
+
+# Other Configuration
+NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_DATA_SERVICE_URL=http://localhost:3002
+NEXT_PUBLIC_ANALYTICS_URL=http://localhost:3003
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Running the Application
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Development Mode
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Start all services:
+```bash
+docker-compose up --build
+```
 
-## Learn More
+2. Access the application:
+- Frontend: http://localhost:3000
+- API Service: http://localhost:3001
+- Data Service: http://localhost:3002
+- Analytics Service: http://localhost:3003
 
-To learn more about Next.js, take a look at the following resources:
+### Production Mode
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Build the services:
+```bash
+docker-compose -f docker-compose.prod.yml up --build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Development
 
-## Deploy on Vercel
+### Frontend Service
+```bash
+cd services/frontend
+npm install
+npm run dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### API Service
+```bash
+cd services/api
+npm install
+npm run dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Data Service
+```bash
+cd services/data
+npm install
+npm run dev
+```
+
+### Analytics Service
+```bash
+cd services/analytics
+npm install
+npm run dev
+```
+
+## API Endpoints
+
+### API Service (Port 3001)
+- `GET /api/chains`: List all supported chains
+- `GET /api/chains/:chainId`: Get chain details
+- `GET /api/protocols`: List all protocols
+- `GET /api/protocols/:protocolId`: Get protocol details
+
+### Data Service (Port 3002)
+- `GET /data/chains`: Get chain data from Firestore
+- `GET /data/protocols`: Get protocol data from Firestore
+- `POST /data/analytics`: Store analytics data
+
+### Analytics Service (Port 3003)
+- `GET /metrics`: Prometheus metrics
+- `GET /health`: Health check endpoint
+- `POST /analytics`: Store analytics data
+
+## Monitoring
+
+- Prometheus metrics available at: http://localhost:3003/metrics
+- Redis monitoring available at: http://localhost:6379
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 ## Architecture

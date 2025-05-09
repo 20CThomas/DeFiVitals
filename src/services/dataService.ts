@@ -6,6 +6,7 @@ import {
   calculateRocketPoolMetrics,
   normalizeMetrics,
 } from './platformApis';
+import { getCachedData, setCachedData, CACHE_KEYS } from './cacheService';
 
 export const USE_MOCK_DATA = false; // Set to false to use real API data
 
@@ -653,8 +654,28 @@ interface ChainMarketCapData {
   mcap: number;
 }
 
-export async function fetchChainData() {
+export interface ChainData {
+  id: string;
+  name: string;
+  tokenSymbol?: string;
+  logo?: string;
+  tvl: number;
+  change_24h: number;
+  change_7d: number;
+  marketCap: number;
+  mcapToTvl: number;
+  protocols: number;
+}
+
+export async function fetchChainData(): Promise<ChainData[]> {
   try {
+    // Try to get from cache first
+    const cachedData = await getCachedData<ChainData[]>(CACHE_KEYS.CHAINS);
+    if (cachedData) {
+      console.log('Using cached chain data');
+      return cachedData;
+    }
+
     // Fetch TVL data
     const tvlResponse = await axios.get<ChainTVLData[]>(`${DEFILLAMA_API}/v2/chains`);
     const tvlData = tvlResponse.data;
@@ -685,9 +706,13 @@ export async function fetchChainData() {
       })
       .sort((a, b) => b.marketCap - a.marketCap); // Sort by market cap
 
+    // Cache the data
+    await setCachedData(CACHE_KEYS.CHAINS, combinedData);
+
     return combinedData;
   } catch (error) {
     console.error('Error fetching chain data:', error);
+    // Return empty array instead of empty object
     return [];
   }
 }
@@ -703,6 +728,14 @@ export interface ChainProtocol {
 
 export async function fetchChainProtocols(chainName: string): Promise<ChainProtocol[]> {
   try {
+    // Try to get from cache first
+    const cacheKey = CACHE_KEYS.CHAIN_PROTOCOLS(chainName);
+    const cachedData = await getCachedData<ChainProtocol[]>(cacheKey);
+    if (cachedData) {
+      console.log(`Using cached protocols for ${chainName}`);
+      return cachedData;
+    }
+
     // Normalize chain name for DeFi Llama API
     const normalizedChainName = chainName.toLowerCase();
     
@@ -726,7 +759,7 @@ export async function fetchChainProtocols(chainName: string): Promise<ChainProto
     });
     
     // Transform to our interface
-    return chainProtocols
+    const transformedData = chainProtocols
       .filter(protocol => protocol.tvl > 0) // Only include protocols with TVL
       .map(protocol => ({
         name: protocol.name,
@@ -737,6 +770,11 @@ export async function fetchChainProtocols(chainName: string): Promise<ChainProto
         change_7d: protocol.change_7d || 0
       }))
       .sort((a, b) => b.tvl - a.tvl); // Sort by TVL descending
+
+    // Cache the data
+    await setCachedData(cacheKey, transformedData);
+
+    return transformedData;
   } catch (error) {
     console.error(`Error fetching ${chainName} protocols:`, error);
     return [];
