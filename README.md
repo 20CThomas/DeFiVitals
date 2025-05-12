@@ -12,7 +12,7 @@ The platform consists of the following microservices:
 - **Analytics Service** (Port 3003): Metrics collection and monitoring
 - **Redis** (Port 6379): Shared caching layer
 
-microservices and their respective dockerfiles are located in the /services folder
+microservices and their respective dockerfiles are located in the [/services folder](https://github.com/20CThomas/DeFiVitals/tree/065368a69d555cd72f51a4dbdaa39a0c48f63f9e/services)
 ## Prerequisites
 
 - Docker and Docker Compose
